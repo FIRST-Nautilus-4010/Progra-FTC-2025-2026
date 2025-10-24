@@ -30,6 +30,6 @@ public class Shoot implements Action {
     }
 
     public boolean isFinished() {
-        return !io.onStage3() && !io.onStage2() && !io.onStage1();
+        return true;
     }
 }

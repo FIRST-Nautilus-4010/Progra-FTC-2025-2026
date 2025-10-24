@@ -19,7 +19,7 @@ public class Take implements Action {
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
 
-        io.setVel(300);
+        io.setVel(6000);
 
         if (isFinished()) {
             onEnd();
@@ -33,6 +33,6 @@ public class Take implements Action {
     }
 
     public boolean isFinished() {
-        return io.onStage1() && io.onStage2() && io.onStage3();
+        return  true;
     }
 }
