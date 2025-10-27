@@ -27,7 +27,7 @@ public class ShooterIO {
 
     public void setPitch(double angle) {
         pitchMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        pitchMotor.setTargetPosition((int) angle / 1);
+        pitchMotor.setTargetPosition((int) (angle / (2 * Math.PI)));
         pitchMotor.setPower(1);
     }
 

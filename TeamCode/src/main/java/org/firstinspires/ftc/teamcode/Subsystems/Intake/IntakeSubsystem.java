@@ -25,6 +25,10 @@ public class IntakeSubsystem {
         return new Shoot(io);
     }
 
+    // TODO: agregar acción que detenga el intake al entrar al estado travel
+    public Action travel() {
+        return null;
+    }
     public void periodic() {
         telemetry.addData("Stage 1 state", io.onStage1());
         telemetry.addData("Stage 2 state", io.onStage2());

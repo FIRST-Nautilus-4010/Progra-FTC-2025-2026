@@ -4,6 +4,9 @@ import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.Actions.PrepareForShoot;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.Actions.setVel;
+
+import java.util.function.Supplier;
 
 public class ShooterSubsystem {
     private final ShooterIO io;
@@ -12,16 +15,16 @@ public class ShooterSubsystem {
         io = new ShooterIO(hardwareMap);
     }
 
-    public Action prepareForShoot() {
-        return new PrepareForShoot(io, () -> 1.5, () -> 1.5);
+    public Action prepareForShoot(Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY) {
+        return new PrepareForShoot(io, distanceWithTargetX, distanceWithTargetY);
     }
 
-    public void intake() {
-        io.setVel(-6000);
+    public Action intake() {
+        return new setVel(io, -6000);
     }
 
-    public void stop() {
-        io.setVel(0);
+    public Action stop() {
+        return new setVel(io, 0);
     }
 
 }
