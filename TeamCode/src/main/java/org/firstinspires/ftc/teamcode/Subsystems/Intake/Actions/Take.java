@@ -33,6 +33,6 @@ public class Take implements Action {
     }
 
     public boolean isFinished() {
-        return  true;
+        return true;
     }
 }

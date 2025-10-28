@@ -37,22 +37,26 @@ public class SubsystemManager {
                 intakeAction = intake.travel();
                 shooterAction = shooter.stop();
 
-                intakeAction.run();
-                shooterAction.run();
+                if (!shooterAction.run() && !intakeAction.run()) {
+                    stateQueue.remove();
+                }
                 break;
             case SHOOT:
                 shooterAction = shooter.prepareForShoot();
                 if (!shooterAction.run()){
                     intakeAction = intake.shoot();
-                    intakeAction.run();
+                    if (!intakeAction.run()) {
+                        stateQueue.remove();
+                    }
                 }
                 break;
             case INTAKE:
                 shooterAction = shooter.intake();
                 intakeAction = intake.take();
 
-                intakeAction.run();
-                shooterAction.run();
+                if (!shooterAction.run() && !intakeAction.run()) {
+                    stateQueue.remove();
+                }
                 break;
         }
         
