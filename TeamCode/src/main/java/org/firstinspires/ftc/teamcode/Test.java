@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -7,25 +8,32 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
 
 @TeleOp(name="Test", group="Testing")
 public class Test extends OpMode {
 
     private MecanumDrive drive;
+    private SubsystemManager subsystemManager;
+
+    private boolean alreadyPressedA = false;
+    private boolean alreadyPressedB = false;
+    private boolean alreadyPressedX = false;
+
 
 
     @Override
     public void init() {
         // Inicializa subsistemas y drive
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        subsystemManager = new SubsystemManager(hardwareMap, telemetry);
 
         telemetry.addLine("Test RR + Mecanum listo");
     }
 
     @Override
     public void loop() {
+        subsystemManager.periodic(new TelemetryPacket());
+
         // === LECTURA DE STICKS ===
         double driveY = -gamepad1.left_stick_x;  // Adelante/Atrás
         double driveX = -gamepad1.left_stick_y;  // Lateral
@@ -46,19 +54,31 @@ public class Test extends OpMode {
                 new Vector2d(rotatedX, rotatedY),
                 turn
         ));
-/*
-        // === SUBSISTEMAS ===
-        if (gamepad1.a) {
-            intake.take().run(new TelemetryPacket());
-            shooter.intake();
+
+        if (gamepad1.a && !alreadyPressedA) {
+            subsystemManager.setState(RobotState.INTAKE);
+
+            alreadyPressedA = true;
+        } else {
+            alreadyPressedA = false;
         }
 
-        if (gamepad1.b) {
-            if (!shooter.prepareForShoot().run(new TelemetryPacket())) {
-                intake.shoot();
-            }
+        if (gamepad1.b && !alreadyPressedB) {
+            subsystemManager.setState(RobotState.SHOOT);
+            alreadyPressedB = true;
+        } else {
+            alreadyPressedB = false;
         }
-*/
+
+
+        if (gamepad1.x && !alreadyPressedX) {
+            subsystemManager.setState(RobotState.TRAVEL);
+            alreadyPressedX = true;
+        } else {
+            alreadyPressedX = false;
+        }
+
+
         // === TELEMETRÍA ===
         telemetry.addData("x", pose.position.x);
         telemetry.addData("y", pose.position.y);

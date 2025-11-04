@@ -22,6 +22,8 @@ public class SubsystemManager {
     private Action shooterAction = null;
     private RobotState cachedState = null;
 
+    private final Telemetry telemetry;
+
     // Opcional: Referencia a un gestor de visión si lo tienes
     // private final VisionManager vision;
 
@@ -29,6 +31,8 @@ public class SubsystemManager {
         shooter = new ShooterSubsystem(hardwareMap);
         intake = new IntakeSubsystem(hardwareMap, telemetry);
         stateQueue = new LinkedList<>();
+
+        this.telemetry = telemetry;
         // this.vision = new VisionManager(hardwareMap, telemetry); // si usas visión
     }
 
@@ -37,12 +41,20 @@ public class SubsystemManager {
         stateQueue.add(state);
     }
 
+    public void setState(RobotState state) {
+        if (state == null) return;
+        stateQueue.clear();
+        stateQueue.add(state);
+    }
+
     /**
      * periodic debe recibir el TelemetryPacket por tick (dashboard) y pasar
      * exactamente ese packet a las Actions que ejecutamos.
      */
     public void periodic(TelemetryPacket packet) {
-        if (stateQueue.isEmpty()) return;
+        if (stateQueue.isEmpty()) {
+            scheduleState(RobotState.TRAVEL);
+        }
 
         RobotState current = stateQueue.peek();
 
@@ -56,7 +68,7 @@ public class SubsystemManager {
             switch (current) {
                 case TRAVEL:
                     // travel() debe devolver una Action válida (p. ej. SetVel(0) para intake)
-                    intakeAction = intake.travel();
+                    intakeAction = intake.stop();
                     shooterAction = shooter.stop();
                     break;
 
@@ -69,11 +81,11 @@ public class SubsystemManager {
                     // Proveer Suppliers reales aquí. Ejemplo: lambdas que leen vision o sensores.
                     Supplier<Double> sampleX = () -> {
                         // TODO: reemplazar por VisionManager.getLatestResult().targetX o similar
-                        return 0.0;
+                        return .1;
                     };
                     Supplier<Double> sampleY = () -> {
                         // TODO: reemplazar por VisionManager.getLatestResult().targetY o similar
-                        return 0.0;
+                        return 0.1;
                     };
                     shooterAction = shooter.prepareForShoot(sampleX, sampleY);
                     // shooterAction prepara y espera; cuando termine, arrancaremos intake.shoot()
@@ -100,5 +112,9 @@ public class SubsystemManager {
             shooterAction = null;
             intakeAction = null;
         }
+
+        intake.periodic();
+
+        telemetry.addData("State", current.toString());
     }
 }

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.Actions.Shoot;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.Actions.Take;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake.Actions.setVel;
 
 public class IntakeSubsystem {
     private final IntakeIO io;
@@ -24,6 +25,11 @@ public class IntakeSubsystem {
     public Action shoot() {
         return new Shoot(io);
     }
+
+    public Action stop() {
+        return new setVel(io, 0);
+    }
+
 
     // TODO: agregar acción que detenga el intake al entrar al estado travel
     public Action travel() {

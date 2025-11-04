@@ -6,30 +6,25 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeIO;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterIO;
 
-public class Shoot implements Action {
+public class setVel implements Action {
     private final IntakeIO io;
 
-    public Shoot(IntakeIO io) {
+    private final double vel;
+
+    public setVel(IntakeIO io, double vel) {
         this.io = io;
+        this.vel = vel;
     }
 
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
-        io.setVel(300);
-
-        if (isFinished()) {
-            onEnd();
-        }
-
+        io.setVel(vel);
         return !isFinished();
     }
 
-    public void onEnd() {
-        io.setVel(0);
-    }
-
     public boolean isFinished() {
-        return false;
+        return io.getVel() == vel;
     }
 }

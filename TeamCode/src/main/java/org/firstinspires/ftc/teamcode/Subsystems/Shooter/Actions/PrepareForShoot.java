@@ -39,12 +39,12 @@ public class PrepareForShoot implements Action {
 
         io.setVel(3000);
         io.setYaw(yaw);
-        io.setPitch(pitch);
+        //io.setPitch(pitch);
 
         return !isFinished();
     }
 
     public boolean isFinished() {
-        return io.getVel() == 3000 && io.getYaw() == yaw && io.getPitch() == pitch;
+        return io.getVel() == 3000 && io.getYaw() == yaw;
     }
 }

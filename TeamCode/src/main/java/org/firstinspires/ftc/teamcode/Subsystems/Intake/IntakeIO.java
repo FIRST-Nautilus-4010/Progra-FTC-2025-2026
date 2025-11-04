@@ -22,7 +22,7 @@ public class IntakeIO {
     }
 
     public void setVel(double vel) {
-        motor.setVelocity(vel);
+        motor.setVelocity(-vel);
     }
 
     public boolean onStage1() {
