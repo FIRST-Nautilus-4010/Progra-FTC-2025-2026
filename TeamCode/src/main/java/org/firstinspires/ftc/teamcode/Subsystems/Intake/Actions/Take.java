@@ -19,7 +19,7 @@ public class Take implements Action {
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
 
-        io.setVel(6000);
+        io.setPwr(0.3);
 
         if (isFinished()) {
             onEnd();

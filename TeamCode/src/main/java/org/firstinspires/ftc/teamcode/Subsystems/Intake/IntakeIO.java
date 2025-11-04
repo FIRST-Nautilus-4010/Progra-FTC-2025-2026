@@ -25,6 +25,10 @@ public class IntakeIO {
         motor.setVelocity(-vel);
     }
 
+    public void setPwr(double power) {
+        motor.setPower(power);
+    }
+
     public boolean onStage1() {
         return stage1LimitSwitch.getState();
     }

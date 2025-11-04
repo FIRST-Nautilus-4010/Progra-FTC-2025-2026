@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.Actions.PrepareForShoot;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.Actions.setVel;
 
@@ -15,8 +16,8 @@ public class ShooterSubsystem {
         io = new ShooterIO(hardwareMap);
     }
 
-    public Action prepareForShoot(Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY) {
-        return new PrepareForShoot(io, distanceWithTargetX, distanceWithTargetY);
+    public Action prepareForShoot(Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Telemetry telemetry) {
+        return new PrepareForShoot(io, distanceWithTargetX, distanceWithTargetY, telemetry);
     }
 
     public Action intake() {
@@ -25,6 +26,11 @@ public class ShooterSubsystem {
 
     public Action stop() {
         return new setVel(io, 0);
+    }
+    
+    public void periodic(Telemetry telemetry) {
+        telemetry.addData("VelShooter", io.getVel());
+        telemetry.addData("shooterYaw", io.getYaw());
     }
 
 }

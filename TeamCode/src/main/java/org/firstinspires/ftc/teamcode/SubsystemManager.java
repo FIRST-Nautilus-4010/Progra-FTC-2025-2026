@@ -78,16 +78,7 @@ public class SubsystemManager {
                     break;
 
                 case SHOOT:
-                    // Proveer Suppliers reales aquí. Ejemplo: lambdas que leen vision o sensores.
-                    Supplier<Double> sampleX = () -> {
-                        // TODO: reemplazar por VisionManager.getLatestResult().targetX o similar
-                        return .1;
-                    };
-                    Supplier<Double> sampleY = () -> {
-                        // TODO: reemplazar por VisionManager.getLatestResult().targetY o similar
-                        return 0.1;
-                    };
-                    shooterAction = shooter.prepareForShoot(sampleX, sampleY);
+                    shooterAction = shooter.prepareForShoot(() -> 1.0, () -> 1.0, telemetry);
                     // shooterAction prepara y espera; cuando termine, arrancaremos intake.shoot()
                     intakeAction = null;
                     break;
@@ -104,6 +95,10 @@ public class SubsystemManager {
             intakeRunning = intakeAction != null && intakeAction.run(packet);
         }
 
+        if (intakeAction == null) {
+            intake.stop().run(packet);
+        }
+
         // Si todas las Actions asociadas al estado han terminado, avanzamos en la cola
         boolean anyRunning = shooterRunning || intakeRunning;
         if (!anyRunning) {
@@ -114,6 +109,7 @@ public class SubsystemManager {
         }
 
         intake.periodic();
+        shooter.periodic(telemetry);
 
         telemetry.addData("State", current.toString());
     }
