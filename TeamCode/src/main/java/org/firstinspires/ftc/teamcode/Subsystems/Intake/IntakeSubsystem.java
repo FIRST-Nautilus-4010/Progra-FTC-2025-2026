@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.Actions.Shoot;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.Actions.Take;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.Actions.setVel;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeIO;
 
 public class IntakeSubsystem {
     private final IntakeIO io;

@@ -17,7 +17,7 @@ public class Shoot implements Action {
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
         io.setVel(300);
-
+        io.setBlockState(false);
         if (isFinished()) {
             onEnd();
         }
