@@ -18,8 +18,8 @@ public class Take implements Action {
 
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
-        io.setPwr(0.3);
-        io.setBlockState(true);
+        io.setPwr(-1);
+        //io.setBlockState(true);
 
         if (isFinished()) {
             onEnd();

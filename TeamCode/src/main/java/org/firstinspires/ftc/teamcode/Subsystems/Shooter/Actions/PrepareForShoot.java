@@ -43,13 +43,13 @@ public class PrepareForShoot implements Action {
         pitch = Math.atan2(Vy, Vx);
         yaw = Math.atan2(distanceWithTargetY.get(), distanceWithTargetX.get());
 
-        io.setVel(1500);
+        io.setVel(1200);
         io.setYaw(yaw);
-        //io.setPitch(pitch);
+        io.setPitch(0.5);
 
         telemetry.addData("desiredShooterPitch", pitch);
         telemetry.addData("desiredShooterYaw", yaw);
-        telemetry.addData("desiredShooterVel", 1500);
+        telemetry.addData("desiredShooterVel", 1200);
         telemetry.addData("desiredShooterX", distanceWithTargetX.get());
         telemetry.addData("desiredShooterY", distanceWithTargetY.get());
 
@@ -57,6 +57,6 @@ public class PrepareForShoot implements Action {
     }
 
     public boolean isFinished() {
-        return Math.abs(io.getVel() - 1500) < 50 && Math.abs(io.getYaw() - yaw) < 0.1;
+        return Math.abs(io.getVel() - 1200) < 50 && Math.abs(io.getYaw() - yaw) < 0.1;
     }
 }

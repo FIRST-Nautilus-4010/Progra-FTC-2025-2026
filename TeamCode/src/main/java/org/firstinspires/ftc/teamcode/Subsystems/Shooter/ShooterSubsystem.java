@@ -31,6 +31,7 @@ public class ShooterSubsystem {
     public void periodic(Telemetry telemetry) {
         telemetry.addData("VelShooter", io.getVel());
         telemetry.addData("shooterYaw", io.getYaw());
+        telemetry.addData("shooterPitch", io.getPitch());
     }
 
 }

@@ -43,5 +43,8 @@ public class IntakeSubsystem {
 
         telemetry.addData("Intake vel", io.getVel());
 
+        telemetry.addData("BlockerL pos", io.getBlockerLPos());
+        telemetry.addData("BlockerR pos", io.getBlockerLPos());
+
     }
 }
