@@ -16,12 +16,13 @@ public class PrepareForShoot implements Action {
     private final Supplier<Double> distanceWithTargetX;
     private final Supplier<Double> distanceWithTargetY;
 
-    private final double targetHeight = 1;
+    private final double targetHeight = 0.6;
     private final double accel = -9.81;
     private final Telemetry telemetry;
 
     private double pitch;
     private double yaw;
+    private double vel;
 
 
 
@@ -40,23 +41,29 @@ public class PrepareForShoot implements Action {
         double Vx = Math.sqrt(-accel * distance);
         double Vy = Math.sqrt(2 * -accel * targetHeight);
 
+        vel = (Math.hypot(Vx, Vy) / 0.319186) * 60;
         pitch = Math.atan2(Vy, Vx);
         yaw = Math.atan2(distanceWithTargetY.get(), distanceWithTargetX.get());
 
-        io.setVel(1200);
         io.setYaw(yaw);
-        io.setPitch(0.5);
+        io.setPitch(pitch);
+        io.setVel(vel);
+
+        //io.setPitch(Math.toRadians(45));
+        //io.setPitch(1);
 
         telemetry.addData("desiredShooterPitch", pitch);
         telemetry.addData("desiredShooterYaw", yaw);
-        telemetry.addData("desiredShooterVel", 1200);
+        telemetry.addData("desiredShooterVel", vel);
         telemetry.addData("desiredShooterX", distanceWithTargetX.get());
         telemetry.addData("desiredShooterY", distanceWithTargetY.get());
+
+
 
         return !isFinished();
     }
 
     public boolean isFinished() {
-        return Math.abs(io.getVel() - 1200) < 50 && Math.abs(io.getYaw() - yaw) < 0.1;
+        return Math.abs(io.getVel() - vel) < 50 && Math.abs(io.getYaw() - yaw) < 0.1;
     }
 }

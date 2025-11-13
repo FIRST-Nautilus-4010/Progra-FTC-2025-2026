@@ -26,13 +26,25 @@ public class ShooterIO {
     }
 
     public void setYaw(double angle) {
-        yawMotor.setTargetPosition((int) Math.round((angle / (2 * Math.PI)) * 576));
+        yawMotor.setTargetPosition((int) Math.round((angle / (2 * Math.PI)) * 720));
         yawMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         yawMotor.setPower(1);
     }
 
     public void setPitch(double angle) {
-        pitchServo.setPosition(angle);
+        if (angle <= Math.toRadians(10)) {
+            pitchServo.setPosition(1);
+            return;
+        }
+
+        if (angle >= Math.toRadians(75)) {
+            pitchServo.setPosition(0);
+            return;
+        }
+
+        pitchServo.setPosition(1 - (((angle - Math.toRadians(10)) / Math.toRadians(65))));
+
+        //pitchServo.setPosition(angle);
     }
 
     public void setVel(double vel) {
@@ -41,11 +53,12 @@ public class ShooterIO {
     }
 
     public double getYaw() {
-        return ((double) yawMotor.getCurrentPosition() / 576) * (2 * Math.PI);
+        return ((double) yawMotor.getCurrentPosition() / 720) * (2 * Math.PI);
     }
 
     public double getPitch() {
-        return pitchServo.getPosition() * 1;
+        return (((pitchServo.getPosition() + 1 )) * Math.toRadians(65)) + Math.toRadians(10);
+        //return pitchServo.getPosition();
     }
 
     public double getVel() {
