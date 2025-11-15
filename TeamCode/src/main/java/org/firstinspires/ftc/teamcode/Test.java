@@ -32,7 +32,7 @@ public class Test extends OpMode {
 
     @Override
     public void loop() {
-        subsystemManager.periodic(new TelemetryPacket());
+        subsystemManager.periodic(drive, new TelemetryPacket());
 
         // === LECTURA DE STICKS ===
         double driveY = -gamepad1.left_stick_x;  // Adelante/Atrás

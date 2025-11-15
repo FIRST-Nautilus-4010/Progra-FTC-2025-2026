@@ -15,6 +15,7 @@ public class PrepareForShoot implements Action {
 
     private final Supplier<Double> distanceWithTargetX;
     private final Supplier<Double> distanceWithTargetY;
+    private final Supplier<Double> botYaw;
 
     private final double targetHeight = 0.6;
     private final double accel = -9.81;
@@ -26,24 +27,25 @@ public class PrepareForShoot implements Action {
 
 
 
-    public PrepareForShoot(ShooterIO io, Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Telemetry telemetry) {
+    public PrepareForShoot(ShooterIO io, Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Telemetry telemetry) {
         this.io = io;
         this.distanceWithTargetX = distanceWithTargetX;
         this.distanceWithTargetY = distanceWithTargetY;
+        this.botYaw = botYaw;
 
         this.telemetry = telemetry;
     }
 
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
-        double distance = Math.hypot(distanceWithTargetY.get(), distanceWithTargetX.get());
+        double distance = Math.hypot(distanceWithTargetY.get() * 0.0254, distanceWithTargetX.get() * 0.0254);
 
         double Vx = Math.sqrt(-accel * distance);
         double Vy = Math.sqrt(2 * -accel * targetHeight);
 
         vel = (Math.hypot(Vx, Vy) / 0.319186) * 60;
         pitch = Math.atan2(Vy, Vx);
-        yaw = Math.atan2(distanceWithTargetY.get(), distanceWithTargetX.get());
+        yaw = Math.atan2(distanceWithTargetY.get() * 0.0254, distanceWithTargetX.get() * 0.0254) - botYaw.get();
 
         io.setYaw(yaw);
         io.setPitch(pitch);
@@ -55,8 +57,8 @@ public class PrepareForShoot implements Action {
         telemetry.addData("desiredShooterPitch", pitch);
         telemetry.addData("desiredShooterYaw", yaw);
         telemetry.addData("desiredShooterVel", vel);
-        telemetry.addData("desiredShooterX", distanceWithTargetX.get());
-        telemetry.addData("desiredShooterY", distanceWithTargetY.get());
+        telemetry.addData("desiredShooterX", distanceWithTargetX.get() * 0.0254);
+        telemetry.addData("desiredShooterY", distanceWithTargetY.get() * 0.0254);
 
 
 
