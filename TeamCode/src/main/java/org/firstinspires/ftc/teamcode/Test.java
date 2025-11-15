@@ -24,7 +24,7 @@ public class Test extends OpMode {
     @Override
     public void init() {
         // Inicializa subsistemas y drive
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(-24.62992, 19.62992, Math.PI / 2));
         subsystemManager = new SubsystemManager(hardwareMap, telemetry);
 
         telemetry.addLine("Test RR + Mecanum listo");
