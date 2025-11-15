@@ -1,93 +1,44 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionInitializer;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.AimHelper;
 
-@TeleOp(name="Test", group="Testing")
+@TeleOp(name="Test")
 public class Test extends OpMode {
 
-    private MecanumDrive drive;
-    private SubsystemManager subsystemManager;
-
-    private boolean alreadyPressedA = false;
-    private boolean alreadyPressedB = false;
-    private boolean alreadyPressedX = false;
-
-
+    double robotX = 0;
+    double robotY = 0;
+    double robotHeading = 0;
 
     @Override
     public void init() {
-        // Inicializa subsistemas y drive
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-        subsystemManager = new SubsystemManager(hardwareMap, telemetry);
+        VisionInitializer.VisionInitResult r =
+                VisionInitializer.initialize(hardwareMap, telemetry);
 
-        telemetry.addLine("Test RR + Mecanum listo");
+        if (r != null) {
+            robotX = r.x;
+            robotY = r.y;
+            robotHeading = r.heading;
+        }
     }
 
     @Override
     public void loop() {
-        subsystemManager.periodic(new TelemetryPacket());
 
-        // === LECTURA DE STICKS ===
-        double driveY = -gamepad1.left_stick_x;  // Adelante/Atrás
-        double driveX = -gamepad1.left_stick_y;  // Lateral
-        double turn   = -gamepad1.right_stick_x; // Rotación
+        telemetry.addData("Robot X (m)", robotX);
+        telemetry.addData("Robot Y (m)", robotY);
+        telemetry.addData("Heading (rad)", robotHeading);
 
-        Pose2d pose = drive.localizer.getPose();
+        // Ejemplo: apunta al centro del campo
+        double aim = AimHelper.computeYawToTarget(
+                robotX, robotY, robotHeading,
+                0, 0
+        );
 
-        // === ACTUALIZA POSE ===
-        drive.updatePoseEstimate();
-        double heading = -pose.heading.toDouble();
-
-        // === CONVERSIÓN FIELD ORIENTED ===
-        double rotatedX = driveX * Math.cos(heading) - driveY * Math.sin(heading);
-        double rotatedY = driveX * Math.sin(heading) + driveY * Math.cos(heading);
-
-        // === MOVIMIENTO ===
-        drive.setDrivePowers(new PoseVelocity2d(
-                new Vector2d(rotatedX, rotatedY),
-                turn
-        ));
-
-        if (gamepad1.a && !alreadyPressedA) {
-            subsystemManager.setState(RobotState.INTAKE);
-
-            alreadyPressedA = true;
-        } else {
-            alreadyPressedA = false;
-        }
-
-        if (gamepad1.b && !alreadyPressedB) {
-            subsystemManager.setState(RobotState.SHOOT);
-            alreadyPressedB = true;
-        } else {
-            alreadyPressedB = false;
-        }
-
-
-        if (gamepad1.x && !alreadyPressedX) {
-            subsystemManager.setState(RobotState.TRAVEL);
-            alreadyPressedX = true;
-        } else {
-            alreadyPressedX = false;
-        }
-
-
-        // === TELEMETRÍA ===
-        telemetry.addData("x", pose.position.x);
-        telemetry.addData("y", pose.position.y);
-        telemetry.addData("heading (deg)", Math.toDegrees(pose.heading.toDouble()));
+        telemetry.addData("Yaw error to target", aim);
         telemetry.update();
-    }
-
-    @Override
-    public void stop() {
-        drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0,0), 0));
     }
 }
