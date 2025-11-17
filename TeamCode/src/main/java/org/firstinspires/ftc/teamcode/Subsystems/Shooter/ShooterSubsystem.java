@@ -32,6 +32,13 @@ public class ShooterSubsystem {
         telemetry.addData("VelShooter", io.getVel());
         telemetry.addData("shooterYaw", io.getYaw());
         telemetry.addData("shooterPitch", io.getPitch());
+
+        // Soft limit
+        if (io.getYaw() >= Math.PI / 2 && io.getYawVel() > 0 ||
+            io.getYaw() <= -Math.PI / 2 && io.getYawVel() < 0
+        ) {
+            io.stopYaw();
+        }
     }
 
 }

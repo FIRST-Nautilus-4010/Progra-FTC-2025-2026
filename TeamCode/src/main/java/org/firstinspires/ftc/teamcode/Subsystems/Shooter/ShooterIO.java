@@ -31,6 +31,14 @@ public class ShooterIO {
         yawMotor.setPower(1);
     }
 
+    public double getYawVel() {
+        return yawMotor.getVelocity();
+    }
+
+    public void stopYaw() {
+        yawMotor.setVelocity(0);
+    }
+
     public void setPitch(double angle) {
         if (angle <= Math.toRadians(10)) {
             pitchServo.setPosition(1);
