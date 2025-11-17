@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
 
@@ -51,7 +53,9 @@ public class SubsystemManager {
      * periodic debe recibir el TelemetryPacket por tick (dashboard) y pasar
      * exactamente ese packet a las Actions que ejecutamos.
      */
-    public void periodic(TelemetryPacket packet) {
+    public void periodic(MecanumDrive drive, TelemetryPacket packet) {
+        Pose2d pose = drive.localizer.getPose();
+
         if (stateQueue.isEmpty()) {
             scheduleState(RobotState.TRAVEL);
         }
@@ -78,7 +82,7 @@ public class SubsystemManager {
                     break;
 
                 case SHOOT:
-                    shooterAction = shooter.prepareForShoot(() -> 1.0, () -> 1.0, telemetry);
+                    shooterAction = shooter.prepareForShoot(() -> -64 - (pose.position.x), () -> (59 -  (pose.position.y)), pose.heading::toDouble,telemetry);
                     // shooterAction prepara y espera; cuando termine, arrancaremos intake.shoot()
                     intakeAction = null;
                     break;
