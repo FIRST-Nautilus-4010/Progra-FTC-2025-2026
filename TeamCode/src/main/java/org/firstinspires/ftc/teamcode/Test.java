@@ -44,7 +44,7 @@ public class Test extends OpMode {
         vision = new VisionIO(hardwareMap, shooter);
         vision.resume();
 
-        drive.localizer.setPose(new Pose2d(0, 0, 0));
+        drive.localizer.setPose(new Pose2d(-24.62992, 19.62992, Math.PI / 2));
         initialPoseSet = false;
 
         allianceDetector = new AllianceDetector();
