@@ -29,7 +29,8 @@ public class VisionIO {
         this.shooterIO = shooterIO;
 
         // Camera pose en metros y orientaciones en radianes
-        this.cameraPosition = new Position(DistanceUnit.METER, 0, 0.1,0.06 , 0);
+        this.cameraPosition = new Position(DistanceUnit.INCH, 0, 6.5,2 , 0);
+
         YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, 0, Math.toRadians(-90), 0, 0);
 
         aprilTag = new AprilTagProcessor.Builder()

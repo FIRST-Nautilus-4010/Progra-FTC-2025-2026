@@ -18,7 +18,7 @@ public class PrepareForShoot implements Action {
     private final Supplier<Double> botYaw;
 
     private final double targetHeight = 0.6;
-    private final double accel = -9.81;
+    private double accel = -7;
     private final Telemetry telemetry;
 
     private double pitch;

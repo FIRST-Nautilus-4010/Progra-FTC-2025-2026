@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Vision;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionIO;
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.Alliance;
-
 public class AllianceDetector {
     // Configurables
-    public double fieldCenterX = 0.0;
+    public double fieldCenterY = 0.0;
+
+
     public double thresholdMeters = 0.3;
     public int maxSamples = 5;
 
@@ -54,8 +53,9 @@ public class AllianceDetector {
 
     private Alliance determineByX(VisionIO.Pose2dSimple vp) {
         if (vp == null) return Alliance.UNKNOW;
-        if (vp.x < fieldCenterX - thresholdMeters) return Alliance.RED;
-        if (vp.x > fieldCenterX + thresholdMeters) return Alliance.BLUE;
+        if (vp.y < fieldCenterY - thresholdMeters) return Alliance.BLUE;
+        if (vp.y > fieldCenterY + thresholdMeters) return Alliance.RED;
+
         return Alliance.UNKNOW;
     }
 

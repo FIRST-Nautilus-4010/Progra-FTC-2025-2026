@@ -36,7 +36,6 @@ public class Test extends OpMode {
 
     @Override
     public void init() {
-        // Inicializa subsistemas y drive
         drive = new MecanumDrive(hardwareMap, new Pose2d(-24.62992, 19.62992, Math.PI / 2));
         subsystemManager = new SubsystemManager(hardwareMap, telemetry);
 
@@ -48,7 +47,8 @@ public class Test extends OpMode {
         initialPoseSet = false;
 
         allianceDetector = new AllianceDetector();
-        allianceDetector.fieldCenterX = 0.0;
+        allianceDetector.fieldCenterY = 0.0;
+
         allianceDetector.thresholdMeters = 0.3;    // zona segura
         allianceDetector.maxSamples = 3;           //muestras
 
