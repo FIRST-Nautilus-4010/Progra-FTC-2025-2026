@@ -21,14 +21,14 @@ public class ShooterIO {
         launcherMotorTop.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         launcherMotorBottom.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        yawMotor.setPositionPIDFCoefficients(200);
-        yawMotor.setTargetPositionTolerance(5);
+        yawMotor.setPositionPIDFCoefficients(100);
+        yawMotor.setTargetPositionTolerance(10);
     }
 
     public void setYaw(double angle) {
 
         if (!(Math.abs(angle) > Math.PI/2)) {
-            yawMotor.setTargetPosition((int) Math.round((-angle / (2 * Math.PI)) * 570.24));
+            yawMotor.setTargetPosition((int) Math.round((angle / (2 * Math.PI)) * (28 * 1.98 * 36)));
             yawMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             yawMotor.setPower(1);
             return;
@@ -67,7 +67,7 @@ public class ShooterIO {
     }
 
     public double getYaw() {
-        return ((double) -yawMotor.getCurrentPosition() / 518.4) * (2 * Math.PI);
+        return ((double) yawMotor.getCurrentPosition() / (28 * 1.98 * 36)) * (2 * Math.PI);
     }
 
     public double getPitch() {

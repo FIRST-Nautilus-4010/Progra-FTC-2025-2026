@@ -68,18 +68,7 @@ public class Test extends OpMode {
 
         vision.update();
         Pose2dSimple vp = vision.getLastRobotPose();
-        // === INICIALIZACIÓN DE POSE ===
-        if(!initialPoseSet && vp != null){
-            drive.localizer.setPose(new Pose2d(vp.x, vp.y, vp.heading));
-            initialPoseSet = true;
-            try { vision.pause(); } catch (Exception ignored) {}
-            telemetry.addData("vision", "initial pose set");
-            telemetry.addData("visionX (m)", "%.3f", vp.x);
-            telemetry.addData("visionY (m)", "%.3f", vp.y);
-            telemetry.addData("visionHeading (deg)", "%.2f", Math.toDegrees(vp.heading));
-        } else {
-            telemetry.addData("vision", initialPoseSet ? "disabled (initial set)" : "no detection");
-        }
+
         // === DETECCIÓN DE ALIANZA ===
         if (!allianceDecided){
             if (allianceDetector.processPose(vp)){
