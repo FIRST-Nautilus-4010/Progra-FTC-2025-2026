@@ -38,38 +38,61 @@ public class PrepareForShoot implements Action {
 
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
-        double distance = Math.hypot(distanceWithTargetY.get() * 0.0254, distanceWithTargetX.get() * 0.0254);
+        double distance = Math.hypot(distanceWithTargetY.get() * 0.0254,
+                distanceWithTargetX.get() * 0.0254);
 
-        vel = 800;
+        double vel = 4.272;                 // tu velocidad real en m/s
+        double g   = accel;                 // debería ser 9.81
+        double x   = distance;              // distancia horizontal al objetivo
+        double y   = targetHeight;          // diferencia de altura
 
-        double a = -(accel * distance * distance) / (2 * 4.272 * 4.272);
-        double b = distance;
-        double c = a - targetHeight;
+        // ---- ECUACIÓN CORRECTA DEL TIRO PARABÓLICO ----
+        // A*T^2 + B*T + C = 0   con T = tan(theta)
+        double A = (g * x * x) / (2.0 * vel * vel);
+        double B = -x;
+        double C = A + y;
 
-        double x0 = Math.toRadians(90) - Math.atan((-b+Math.sqrt(b*b - 4*a*c))/2*a);
-        double x1 = Math.toRadians(90) - Math.atan((-b-Math.sqrt(b*b - 4*a*c))/2*a);
+        // discriminante
+        double discriminant = B*B - 4*A*C;
 
-        if (x0 < 0 ) {
-            pitch = x1;
+        double pitch;
+
+        if (discriminant < 0) {
+            // No hay solución real: la velocidad no basta
+            pitch = Math.toRadians(45);  // fallback
         } else {
-            pitch = x0;
+            double sqrtD = Math.sqrt(discriminant);
+
+            double T1 = (-B + sqrtD) / (2.0 * A);
+            double T2 = (-B - sqrtD) / (2.0 * A);
+
+            double x0 = Math.toRadians(90) - Math.atan(T1);
+            double x1 = Math.toRadians(90) - Math.atan(T2);
+
+            // elige la solución positiva
+            if (x0 < 0) {
+                pitch = x1;
+            } else if (x1 < 0) {
+                pitch = x0;
+            } else {
+                pitch = Math.min(x0, x1);
+            }
         }
-        yaw = Math.atan2(distanceWithTargetY.get() * 0.0254, distanceWithTargetX.get() * 0.0254) - botYaw.get();
+
+        // ---- CÁLCULO DEL YAW---
+        double yaw = Math.atan2(distanceWithTargetY.get() * 0.0254,
+                distanceWithTargetX.get() * 0.0254)
+                - botYaw.get();
 
         io.setYaw(yaw);
         io.setPitch(pitch);
         io.setVel(vel);
-
-        //io.setPitch(Math.toRadians(45));
-        //io.setPitch(1);
 
         telemetry.addData("desiredShooterPitch", pitch);
         telemetry.addData("desiredShooterYaw", yaw);
         telemetry.addData("desiredShooterVel", vel);
         telemetry.addData("desiredShooterX", distanceWithTargetX.get() * 0.0254);
         telemetry.addData("desiredShooterY", distanceWithTargetY.get() * 0.0254);
-
-
 
         return !isFinished();
     }
