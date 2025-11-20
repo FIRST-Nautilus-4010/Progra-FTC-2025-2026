@@ -17,8 +17,8 @@ public class PrepareForShoot implements Action {
     private final Supplier<Double> distanceWithTargetY;
     private final Supplier<Double> botYaw;
 
-    private final double targetHeight = 0.6;
-    private double accel = -7;
+    private final double targetHeight = 0.7;
+    private double accel = -9.81;
     private final Telemetry telemetry;
 
     private double pitch;
@@ -40,11 +40,20 @@ public class PrepareForShoot implements Action {
     public boolean run(@NonNull TelemetryPacket packet) {
         double distance = Math.hypot(distanceWithTargetY.get() * 0.0254, distanceWithTargetX.get() * 0.0254);
 
-        double Vx = Math.sqrt(-accel * distance);
-        double Vy = Math.sqrt(2 * -accel * targetHeight);
+        vel = 800;
 
-        vel = (Math.hypot(Vx, Vy) / 0.319186) * 60;
-        pitch = Math.atan2(Vy, Vx);
+        double a = -(accel * distance * distance) / (2 * 4.272 * 4.272);
+        double b = distance;
+        double c = a - targetHeight;
+
+        double x0 = Math.toRadians(90) - Math.atan((-b+Math.sqrt(b*b - 4*a*c))/2*a);
+        double x1 = Math.toRadians(90) - Math.atan((-b-Math.sqrt(b*b - 4*a*c))/2*a);
+
+        if (x0 < 0 ) {
+            pitch = x1;
+        } else {
+            pitch = x0;
+        }
         yaw = Math.atan2(distanceWithTargetY.get() * 0.0254, distanceWithTargetX.get() * 0.0254) - botYaw.get();
 
         io.setYaw(yaw);
