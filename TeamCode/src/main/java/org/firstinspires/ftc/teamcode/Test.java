@@ -101,7 +101,7 @@ public class Test extends OpMode {
 
         // === ACTUALIZA POSE ===
         drive.updatePoseEstimate();
-        double heading = -pose.heading.toDouble();
+        double heading = -pose.heading.toDouble() + Math.toRadians(90);
 
         // === CONVERSIÓN FIELD ORIENTED ===
         double rotatedX = driveX * Math.cos(heading) - driveY * Math.sin(heading);

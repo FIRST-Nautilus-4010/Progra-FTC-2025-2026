@@ -17,8 +17,8 @@ public class PrepareForShoot implements Action {
     private final Supplier<Double> distanceWithTargetY;
     private final Supplier<Double> botYaw;
 
-    private final double targetHeight = 0.7;
-    private double accel = 9.81;
+    private final double targetHeight = 0.64;
+    private double accel = 10.2;
     private final Telemetry telemetry;
 
     private double pitch;
@@ -41,7 +41,13 @@ public class PrepareForShoot implements Action {
         double distance = Math.hypot(distanceWithTargetY.get() * 0.0254,
                 distanceWithTargetX.get() * 0.0254);
 
-        double vel = 4.272;                 // tu velocidad real en m/s
+        double vel = 7;
+
+        if (distance < 2) {
+            vel = 5.4;
+            accel = 10.1;
+        }
+
         double g   = accel;                 // debería ser 9.81
         double x   = distance;              // distancia horizontal al objetivo
         double y   = targetHeight;          // diferencia de altura
@@ -70,12 +76,12 @@ public class PrepareForShoot implements Action {
             double x1 = Math.toRadians(90) - Math.atan(T2);
 
             // elige la solución positiva
-            if (x0 < 0) {
+            if (x0 < Math.toRadians(10) || x0 > Math.toRadians(75)) {
                 pitch = x1;
-            } else if (x1 < 0) {
+            } else if (x1 < Math.toRadians(10) || x1 > Math.toRadians(75)) {
                 pitch = x0;
             } else {
-                pitch = Math.min(x0, x1);
+                pitch = Math.toRadians(45);
             }
         }
 
@@ -86,11 +92,11 @@ public class PrepareForShoot implements Action {
 
         io.setYaw(yaw);
         io.setPitch(pitch);
-        io.setVel(vel);
+        io.setVel((vel * 60) / (0.1016 * Math.PI));
 
         telemetry.addData("desiredShooterPitch", pitch);
         telemetry.addData("desiredShooterYaw", yaw);
-        telemetry.addData("desiredShooterVel", vel);
+        telemetry.addData("desiredShooterVel", (vel * 60) / (0.1016 * Math.PI));
         telemetry.addData("desiredShooterX", distanceWithTargetX.get() * 0.0254);
         telemetry.addData("desiredShooterY", distanceWithTargetY.get() * 0.0254);
 
@@ -98,6 +104,6 @@ public class PrepareForShoot implements Action {
     }
 
     public boolean isFinished() {
-        return Math.abs(io.getVel() - vel) < 50 && Math.abs(io.getYaw() - yaw) < 0.1;
+        return Math.abs(io.getVel() - ((vel * 60) / (0.1016 * Math.PI))) < 50;
     }
 }

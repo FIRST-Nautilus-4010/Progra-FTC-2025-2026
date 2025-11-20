@@ -71,7 +71,7 @@ public class ShooterIO {
     }
 
     public double getPitch() {
-        return (((pitchServo.getPosition() + 1 )) * Math.toRadians(65)) + Math.toRadians(10);
+        return (((1 - pitchServo.getPosition())) * Math.toRadians(65)) + Math.toRadians(10);
         //return pitchServo.getPosition();
     }
 
