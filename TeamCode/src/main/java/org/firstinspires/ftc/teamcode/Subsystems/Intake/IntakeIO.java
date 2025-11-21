@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Intake;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -44,7 +45,11 @@ public class IntakeIO {
         blockerL.setPosition(1);
         blockerR.setPosition(1);
     }
-
+    public void setPosition(double position){
+        motor.setTargetPosition((int)Math.round(position));
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor.setPower(1);
+    }
     public boolean onStage1() {
         return stage1LimitSwitch.getState();
     }

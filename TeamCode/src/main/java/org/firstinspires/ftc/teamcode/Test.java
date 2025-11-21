@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.AllianceDetector;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionIO;
@@ -24,6 +25,7 @@ public class Test extends OpMode {
     private boolean alreadyPressedA = false;
     private boolean alreadyPressedB = false;
     private boolean alreadyPressedX = false;
+    private boolean alreadyPressedY = false;
 
     private ShooterIO shooter;
     private VisionIO vision;
@@ -31,11 +33,13 @@ public class Test extends OpMode {
 
     private AllianceDetector allianceDetector;
     private boolean allianceDecided = false;
+    private Servo hammerShooter;
 
 
 
     @Override
     public void init() {
+        hammerShooter = hardwareMap.get(Servo.class, "hammerS");
         drive = new MecanumDrive(hardwareMap, new Pose2d(-24.62992, 19.62992, Math.PI / 2));
         subsystemManager = new SubsystemManager(hardwareMap, telemetry);
 
@@ -124,11 +128,17 @@ public class Test extends OpMode {
         } else {
             alreadyPressedX = false;
         }
+        if (gamepad1.y && !alreadyPressedY){
+            hammerShooter.setPosition(-1);
+        }else{
+            hammerShooter.setPosition(0);
+        }
 
 
         // === TELEMETRÍA ===
         telemetry.addData("x", pose.position.x);
         telemetry.addData("y", pose.position.y);
+        telemetry.addData("HammerPosition", hammerShooter.getPosition());
         telemetry.addData("heading (deg)", Math.toDegrees(pose.heading.toDouble()));
         telemetry.addData("alliance", allianceDecided ? allianceDetector.getAlliance().toString() : "pending");
         telemetry.addData("samples", allianceDetector.getSamples());
