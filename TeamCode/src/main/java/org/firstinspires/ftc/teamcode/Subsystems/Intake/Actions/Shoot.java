@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeIO;
@@ -14,9 +16,12 @@ public class Shoot implements Action {
     private int iteration = 0;
 
     private ElapsedTime elapsedTime = new ElapsedTime();
+    private Servo hammerShooter;
 
-    public Shoot(IntakeIO io) {
+    public Shoot(IntakeIO io, HardwareMap hardwareMap) {
         this.io = io;
+        hammerShooter = hardwareMap.get(Servo.class, "hammerS");hammerShooter.setPosition(1);
+
     }
 
     @Override
@@ -37,7 +42,7 @@ public class Shoot implements Action {
                 elapsedTime.reset();
             }
         }
-        io.setBlockState(false);
+
         if (isFinished()) {
             onEnd();
         }
@@ -47,9 +52,10 @@ public class Shoot implements Action {
 
     public void onEnd() {
         io.setVel(0);
+        hammerShooter.setPosition(1);
     }
 
     public boolean isFinished() {
-        return false;
+        return iteration > 4;
     }
 }

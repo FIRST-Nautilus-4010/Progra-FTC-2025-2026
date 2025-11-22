@@ -4,15 +4,19 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeIO;
 
 public class Take implements Action {
     private final IntakeIO io;
     private int lastUsedStage = 0;
+    private Servo hammerShooter;
 
-    public Take(IntakeIO io) {
+    public Take(IntakeIO io, HardwareMap hardwareMap) {
         this.io = io;
+        hammerShooter = hardwareMap.get(Servo.class, "hammerS");hammerShooter.setPosition(1);
     }
 
 
@@ -29,10 +33,10 @@ public class Take implements Action {
     }
 
     public void onEnd() {
-        io.setVel(0);
+        hammerShooter.setPosition(1);
     }
 
     public boolean isFinished() {
-        return false;
+        return true;
     }
 }

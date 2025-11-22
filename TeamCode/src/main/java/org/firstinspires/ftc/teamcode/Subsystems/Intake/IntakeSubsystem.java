@@ -13,18 +13,22 @@ public class IntakeSubsystem {
     private final IntakeIO io;
     private final Telemetry telemetry;
 
+    private final HardwareMap hardwareMap;
+
     public IntakeSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         io = new IntakeIO(hardwareMap);
+
+        this.hardwareMap = hardwareMap;
 
         this.telemetry = telemetry;
     }
 
     public Action take() {
-        return new Take(io);
+        return new Take(io, hardwareMap);
     }
 
     public Action shoot() {
-        return new Shoot(io);
+        return new Shoot(io, hardwareMap);
     }
 
     public Action stop() {
