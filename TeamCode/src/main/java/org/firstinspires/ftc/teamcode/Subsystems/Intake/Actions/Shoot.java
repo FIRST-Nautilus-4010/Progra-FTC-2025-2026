@@ -52,7 +52,7 @@ public class Shoot implements Action {
 
     public void onEnd() {
         io.setVel(0);
-        hammerShooter.setPosition(1);
+        hammerShooter.setPosition(0);
     }
 
     public boolean isFinished() {

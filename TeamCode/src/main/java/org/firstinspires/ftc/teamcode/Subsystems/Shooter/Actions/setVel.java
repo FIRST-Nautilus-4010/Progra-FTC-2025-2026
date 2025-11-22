@@ -26,6 +26,6 @@ public class setVel implements Action {
     }
 
     public boolean isFinished() {
-        return io.getVel() == vel;
+        return true;
     }
 }

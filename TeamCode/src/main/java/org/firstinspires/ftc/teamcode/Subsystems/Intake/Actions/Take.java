@@ -17,12 +17,14 @@ public class Take implements Action {
     public Take(IntakeIO io, HardwareMap hardwareMap) {
         this.io = io;
         hammerShooter = hardwareMap.get(Servo.class, "hammerS");hammerShooter.setPosition(1);
+
     }
 
 
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
         io.setPwr(-1);
+        hammerShooter.setPosition(1);
         //io.setBlockState(true);
 
         if (isFinished()) {
@@ -33,10 +35,10 @@ public class Take implements Action {
     }
 
     public void onEnd() {
-        hammerShooter.setPosition(1);
+
     }
 
     public boolean isFinished() {
-        return true;
+        return false;
     }
 }

@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterIO;
 
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 
-@TeleOp(name="Test", group="Testing")
-public class Test extends OpMode {
+@TeleOp(name="TeleopBlue", group="Regional")
+public class TeleopBlue extends OpMode {
 
     private MecanumDrive drive;
     private SubsystemManager subsystemManager;
@@ -40,14 +40,14 @@ public class Test extends OpMode {
     @Override
     public void init() {
         hammerShooter = hardwareMap.get(Servo.class, "hammerS");
-        drive = new MecanumDrive(hardwareMap, new Pose2d(-24.62992, 19.62992, Math.PI / 2));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(60, -14,  -Math.PI / 2));
         subsystemManager = new SubsystemManager(hardwareMap, telemetry);
 
         shooter = new ShooterIO(hardwareMap);
         vision = new VisionIO(hardwareMap, shooter);
         vision.resume();
 
-        drive.localizer.setPose(new Pose2d(-24.62992, 19.62992, Math.PI / 2));
+        drive.localizer.setPose(new Pose2d(49.7, -                                         17.4,  -Math.PI / 2));
         initialPoseSet = false;
 
         allianceDetector = new AllianceDetector();
@@ -68,7 +68,7 @@ public class Test extends OpMode {
 
     @Override
     public void loop() {
-        subsystemManager.periodic(drive, new TelemetryPacket());
+        subsystemManager.periodic(drive, new TelemetryPacket(), -1);
 
         vision.update();
         Pose2dSimple vp = vision.getLastRobotPose();
@@ -94,7 +94,7 @@ public class Test extends OpMode {
 
         // === ACTUALIZA POSE ===
         drive.updatePoseEstimate();
-        double heading = -pose.heading.toDouble() + Math.toRadians(90);
+        double heading = -pose.heading.toDouble() - Math.toRadians(90);
 
         // === CONVERSIÓN FIELD ORIENTED ===
         double rotatedX = driveX * Math.cos(heading) - driveY * Math.sin(heading);
@@ -106,7 +106,7 @@ public class Test extends OpMode {
                 turn
         ));
 
-        if (gamepad1.a && !alreadyPressedA) {
+        if (gamepad2.a && !alreadyPressedA) {
             subsystemManager.setState(RobotState.INTAKE);
 
             alreadyPressedA = true;
@@ -114,7 +114,7 @@ public class Test extends OpMode {
             alreadyPressedA = false;
         }
 
-        if (gamepad1.b && !alreadyPressedB) {
+        if (gamepad2.b && !alreadyPressedB) {
             subsystemManager.setState(RobotState.SHOOT);
             alreadyPressedB = true;
         } else {
@@ -122,19 +122,19 @@ public class Test extends OpMode {
         }
 
 
-        if (gamepad1.x && !alreadyPressedX) {
+        if (gamepad2.x && !alreadyPressedX) {
             subsystemManager.setState(RobotState.TRAVEL);
             alreadyPressedX = true;
         } else {
             alreadyPressedX = false;
         }
-        if (gamepad1.y && !alreadyPressedY){
+        if (gamepad2.y && !alreadyPressedY){
             hammerShooter.setPosition(0);
         }else{
             hammerShooter.setPosition(1);
         }
 
-        if (gamepad1.dpad_down) {
+        if (gamepad2.dpad_down) {
             drive.localizer.setPose(new Pose2d(pose.position.x, pose.position.y, Math.PI / 2));
         }
 

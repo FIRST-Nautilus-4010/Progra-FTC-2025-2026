@@ -15,8 +15,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.Actions.PrepareForShoot;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
 
-@Autonomous(name="AutonomousRed", group="Testing")
-public class AutonomousRed extends LinearOpMode {
+@Autonomous(name="AutonomousBlue", group="Testing")
+public class AutonomousBlue extends LinearOpMode {
 
     private static final double PPG_POS = -11.6;
     private static final double PGP_POS = 12.2;
@@ -26,7 +26,7 @@ public class AutonomousRed extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         // Inicializa el drive y la posición inicial
-        Pose2d startPose = new Pose2d(-70+8, 46.6 - 7.4,  Math.PI / 2);
+        Pose2d startPose = new Pose2d(-70 + 8, -46.6 + 7.4,  -Math.PI / 2);
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
         drive.localizer.setPose(startPose);
 
@@ -38,7 +38,7 @@ public class AutonomousRed extends LinearOpMode {
 
         Action prepareForShoot = shooter.prepareForShoot(
                 () -> -64 - drive.localizer.getPose().position.x,
-                () -> (59 - drive.localizer.getPose().position.y),
+                () -> -59 - drive.localizer.getPose().position.y,
                 () -> drive.localizer.getPose().heading.toDouble(),
                 telemetry
         );
@@ -48,35 +48,38 @@ public class AutonomousRed extends LinearOpMode {
 
         // Construye la acción (trajectory) del robot
         Action traj = drive.actionBuilder(startPose)
-                .strafeTo(new Vector2d(-30, 28))
+                .strafeTo(new Vector2d(-30, -28))
 
                 .stopAndAdd(prepareForShoot)
                 .stopAndAdd(shoot)
 
                 // PPG
-                .strafeTo(new Vector2d(PPG_POS, 28 - 3))
+                .strafeToConstantHeading(new Vector2d(PPG_POS, -28 + 3))
                 .stopAndAdd(take)
-                .strafeTo(new Vector2d(PPG_POS, 28 - 3 + 18))
+                .stopAndAdd(shooter.intake())
+                .strafeToConstantHeading(new Vector2d(PPG_POS, -28 + 3 - 18))
                 .stopAndAdd(stop)
-                .strafeTo(new Vector2d(-36.3, 31.5))
+                .strafeToConstantHeading(new Vector2d(-36.3, -31.5))
                 .stopAndAdd(prepareForShoot)
                 .stopAndAdd(shoot)
 
                 // PGP
-                .strafeTo(new Vector2d(PGP_POS, 28 - 3))
+                .strafeToConstantHeading(new Vector2d(PGP_POS, -28 + 3))
                 .stopAndAdd(take)
-                .strafeTo(new Vector2d(PGP_POS, 28 - 3 + 18))
+                .stopAndAdd(shooter.intake())
+                .strafeToConstantHeading(new Vector2d(PGP_POS, -28 + 3 - 18))
                 .stopAndAdd(stop)
-                .strafeTo(new Vector2d(-7.9, 19.9))
+                .strafeToConstantHeading(new Vector2d(-7.9, -19.9))
                 .stopAndAdd(prepareForShoot)
                 .stopAndAdd(shoot)
 
                 // GPP
-                .strafeTo(new Vector2d(GPP_POS, 28 - 3))
+                .strafeToConstantHeading(new Vector2d(GPP_POS, -28 + 3))
                 .stopAndAdd(take)
-                .strafeTo(new Vector2d(GPP_POS, 28 - 3 + 18))
+                .stopAndAdd(shooter.intake())
+                .strafeToConstantHeading(new Vector2d(GPP_POS, -28 + 3 - 18))
                 .stopAndAdd(stop)
-                .strafeTo(new Vector2d(54.3, 12.9))
+                .strafeToConstantHeading(new Vector2d(54.3, -12.9))
                 .stopAndAdd(prepareForShoot)
                 .stopAndAdd(shoot)
 
