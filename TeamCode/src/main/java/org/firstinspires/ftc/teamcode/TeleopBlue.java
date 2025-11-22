@@ -40,7 +40,7 @@ public class TeleopBlue extends OpMode {
     @Override
     public void init() {
         hammerShooter = hardwareMap.get(Servo.class, "hammerS");
-        drive = new MecanumDrive(hardwareMap, new Pose2d(60, -14,  -Math.PI / 2));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(30, -14,  -Math.PI / 2));
         subsystemManager = new SubsystemManager(hardwareMap, telemetry);
 
         shooter = new ShooterIO(hardwareMap);

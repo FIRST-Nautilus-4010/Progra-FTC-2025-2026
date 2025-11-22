@@ -21,7 +21,7 @@ public class PrepareForShoot implements Action {
     private final Supplier<Double> botYaw;
 
     private final double targetHeight = 0.5;
-    private double accel = 10.1 ;
+    private double accel = 2.5;
     private final Telemetry telemetry;
 
     private ElapsedTime elapsedTime;
@@ -59,13 +59,13 @@ public class PrepareForShoot implements Action {
         }
 
         double distance = Math.hypot(distanceWithTargetY.get() * 0.0254,
-                distanceWithTargetX.get() * 0.0254);
+                distanceWithTargetX.get() * 0.0254) - .3;
 
         double vel = 7;
 
         if (distance < 2) {
             vel = 5.4;
-            accel = 11;
+            accel = 2.5;
         }
 
         double g   = accel;                 // debería ser 9.81
@@ -111,7 +111,7 @@ public class PrepareForShoot implements Action {
                 - botYaw.get();
 
         io.setYaw(yaw);
-        io.setPitch(pitch - Math.toRadians(7));
+        io.setPitch(pitch);
         io.setVel((vel * 60) / (0.1016 * Math.PI));
 
         telemetry.addData("desiredShooterPitch", pitch);

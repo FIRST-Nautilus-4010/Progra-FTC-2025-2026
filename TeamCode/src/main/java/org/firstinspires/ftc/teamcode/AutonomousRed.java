@@ -54,29 +54,32 @@ public class AutonomousRed extends LinearOpMode {
                 .stopAndAdd(shoot)
 
                 // PPG
-                .strafeTo(new Vector2d(PPG_POS, 28 - 3))
+                .strafeToConstantHeading(new Vector2d(PPG_POS, 28 - 3))
                 .stopAndAdd(take)
-                .strafeTo(new Vector2d(PPG_POS, 28 - 3 + 18))
+                .stopAndAdd(shooter.intake())
+                .strafeToConstantHeading(new Vector2d(PPG_POS, 28 - 3 + 18))
                 .stopAndAdd(stop)
-                .strafeTo(new Vector2d(-36.3, 31.5))
+                .strafeToConstantHeading(new Vector2d(-36.3, 31.5))
                 .stopAndAdd(prepareForShoot)
                 .stopAndAdd(shoot)
 
                 // PGP
-                .strafeTo(new Vector2d(PGP_POS, 28 - 3))
+                .strafeToConstantHeading(new Vector2d(PGP_POS, 28 - 3))
                 .stopAndAdd(take)
-                .strafeTo(new Vector2d(PGP_POS, 28 - 3 + 18))
+                .stopAndAdd(shooter.intake())
+                .strafeToConstantHeading(new Vector2d(PGP_POS, 28 - 3 + 18))
                 .stopAndAdd(stop)
-                .strafeTo(new Vector2d(-7.9, 19.9))
+                .strafeToConstantHeading(new Vector2d(-7.9, 19.9))
                 .stopAndAdd(prepareForShoot)
                 .stopAndAdd(shoot)
 
                 // GPP
-                .strafeTo(new Vector2d(GPP_POS, 28 - 3))
+                .strafeToConstantHeading(new Vector2d(GPP_POS, 28 - 3))
                 .stopAndAdd(take)
-                .strafeTo(new Vector2d(GPP_POS, 28 - 3 + 18))
+                .stopAndAdd(shooter.intake())
+                .strafeToConstantHeading(new Vector2d(GPP_POS, 28 - 3 + 18))
                 .stopAndAdd(stop)
-                .strafeTo(new Vector2d(54.3, 12.9))
+                .strafeToConstantHeading(new Vector2d(54.3, 12.9))
                 .stopAndAdd(prepareForShoot)
                 .stopAndAdd(shoot)
 

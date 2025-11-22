@@ -48,40 +48,7 @@ public class AutonomousBlue extends LinearOpMode {
 
         // Construye la acción (trajectory) del robot
         Action traj = drive.actionBuilder(startPose)
-                .strafeTo(new Vector2d(-30, -28))
-
-                .stopAndAdd(prepareForShoot)
-                .stopAndAdd(shoot)
-
-                // PPG
-                .strafeToConstantHeading(new Vector2d(PPG_POS, -28 + 3))
-                .stopAndAdd(take)
-                .stopAndAdd(shooter.intake())
-                .strafeToConstantHeading(new Vector2d(PPG_POS, -28 + 3 - 18))
-                .stopAndAdd(stop)
-                .strafeToConstantHeading(new Vector2d(-36.3, -31.5))
-                .stopAndAdd(prepareForShoot)
-                .stopAndAdd(shoot)
-
-                // PGP
-                .strafeToConstantHeading(new Vector2d(PGP_POS, -28 + 3))
-                .stopAndAdd(take)
-                .stopAndAdd(shooter.intake())
-                .strafeToConstantHeading(new Vector2d(PGP_POS, -28 + 3 - 18))
-                .stopAndAdd(stop)
-                .strafeToConstantHeading(new Vector2d(-7.9, -19.9))
-                .stopAndAdd(prepareForShoot)
-                .stopAndAdd(shoot)
-
-                // GPP
-                .strafeToConstantHeading(new Vector2d(GPP_POS, -28 + 3))
-                .stopAndAdd(take)
-                .stopAndAdd(shooter.intake())
-                .strafeToConstantHeading(new Vector2d(GPP_POS, -28 + 3 - 18))
-                .stopAndAdd(stop)
-                .strafeToConstantHeading(new Vector2d(54.3, -12.9))
-                .stopAndAdd(prepareForShoot)
-                .stopAndAdd(shoot)
+                .strafeTo(new Vector2d(30, -14))
 
                 .build();
 
