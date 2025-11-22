@@ -12,7 +12,11 @@ public class ShooterIO {
     private final DcMotorEx launcherMotorTop;
     private final DcMotorEx launcherMotorBottom;
 
+    private final HardwareMap hardwareMap;
+
     public ShooterIO(HardwareMap hardwareMap) {
+        this.hardwareMap = hardwareMap;
+
         yawMotor = hardwareMap.get(DcMotorEx.class, "shooterYaw");
         pitchServo = hardwareMap.get(Servo.class, "shooterPitch");
 
@@ -28,13 +32,23 @@ public class ShooterIO {
     public void setYaw(double angle) {
 
         if (!(Math.abs(angle) > Math.PI/2)) {
-            yawMotor.setTargetPosition((int) Math.round((angle / (2 * Math.PI)) * (28 * 1.98 * 36)));
+            double motorTicks = 28.0;        // ticks por vuelta del motor
+            double ratio = 36.0 * 1.9;       // relación total (68.4)
+            double ticksPerRevFinal = motorTicks * ratio; // 1915.2
+
+            int target = (int) Math.round((angle / (2 * Math.PI)) * ticksPerRevFinal);
+
+            yawMotor.setTargetPosition(target);
             yawMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             yawMotor.setPower(1);
             return;
         }
 
         stopYaw();
+    }
+
+    public HardwareMap getHardwareMap() {
+        return hardwareMap;
     }
 
     public double getYawVel() {
@@ -67,7 +81,7 @@ public class ShooterIO {
     }
 
     public double getYaw() {
-        return ((double) yawMotor.getCurrentPosition() / (28 * 1.98 * 36)) * (2 * Math.PI);
+        return ((double) yawMotor.getCurrentPosition() / (28 * (135 / 70) * 36)) * (2 * Math.PI);
     }
 
     public double getPitch() {

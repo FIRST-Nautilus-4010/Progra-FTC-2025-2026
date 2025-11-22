@@ -129,9 +129,13 @@ public class Test extends OpMode {
             alreadyPressedX = false;
         }
         if (gamepad1.y && !alreadyPressedY){
-            hammerShooter.setPosition(-1);
-        }else{
             hammerShooter.setPosition(0);
+        }else{
+            hammerShooter.setPosition(1);
+        }
+
+        if (gamepad1.dpad_down) {
+            drive.localizer.setPose(new Pose2d(pose.position.x, pose.position.y, Math.PI / 2));
         }
 
 

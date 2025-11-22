@@ -4,22 +4,28 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeIO;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterIO;
 
 import java.util.function.Supplier;
 
 public class PrepareForShoot implements Action {
     private final ShooterIO io;
+    private final IntakeIO intakeIO;
 
     private final Supplier<Double> distanceWithTargetX;
     private final Supplier<Double> distanceWithTargetY;
     private final Supplier<Double> botYaw;
 
-    private final double targetHeight = 0.64;
-    private double accel = 10.2 ;
+    private final double targetHeight = 0.5;
+    private double accel = 9.81 ;
     private final Telemetry telemetry;
+
+    private ElapsedTime elapsedTime;
+    private boolean initialized = false;
 
     private double pitch;
     private double yaw;
@@ -29,6 +35,7 @@ public class PrepareForShoot implements Action {
 
     public PrepareForShoot(ShooterIO io, Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Telemetry telemetry) {
         this.io = io;
+        this.intakeIO = new IntakeIO(io.getHardwareMap());
         this.distanceWithTargetX = distanceWithTargetX;
         this.distanceWithTargetY = distanceWithTargetY;
         this.botYaw = botYaw;
@@ -38,6 +45,19 @@ public class PrepareForShoot implements Action {
 
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
+
+        if (!initialized) {
+            elapsedTime = new ElapsedTime();
+            initialized = true;
+        }
+
+        if (elapsedTime.milliseconds() < 50) {
+            intakeIO.setPwr(1);
+            io.setVel(-1300);
+        } else {
+            intakeIO.setPwr(0);
+        }
+
         double distance = Math.hypot(distanceWithTargetY.get() * 0.0254,
                 distanceWithTargetX.get() * 0.0254);
 

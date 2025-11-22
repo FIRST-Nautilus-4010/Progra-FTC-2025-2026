@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeIO;
 public class Shoot implements Action {
     private final IntakeIO io;
     private boolean initialized = false;
+    private int iteration = 0;
 
     private ElapsedTime elapsedTime = new ElapsedTime();
 
@@ -21,19 +22,22 @@ public class Shoot implements Action {
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
         if (!initialized) {
-            elapsedTime.reset();
-            initialized = true;
-        }
-        if(elapsedTime.milliseconds() < 100) {
-            io.setPwr(1);
-        }else if (elapsedTime.milliseconds() < 750){
-            io.setPwr(-1);
+            if (elapsedTime.milliseconds() > 2000) {
+                initialized = true;
+                elapsedTime.reset();
+            }
         } else {
-            io.setPwr(0);
-            elapsedTime.reset();
+            if (elapsedTime.milliseconds() < 50) {
+                io.setPwr(1);
+            } else if (elapsedTime.milliseconds() < 750) {
+                io.setPwr(-1);
+            } else {
+                io.setPwr(0);
+                iteration++;
+                elapsedTime.reset();
+            }
         }
-
-        //io.setBlockState(false);
+        io.setBlockState(false);
         if (isFinished()) {
             onEnd();
         }
