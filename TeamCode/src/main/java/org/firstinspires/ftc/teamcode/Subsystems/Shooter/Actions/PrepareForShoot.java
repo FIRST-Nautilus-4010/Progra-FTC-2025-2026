@@ -76,7 +76,7 @@ public class PrepareForShoot implements Action {
             AprilTagPoseFtc pose = tagDetection.get().ftcPose;
 
             yaw = pose.yaw;
-            distance = Math.hypot(pose.x, pose.y);
+            distance = Math.hypot(pose.x, pose.y) * 0.0254;
         }
 
         double vel = 7;
