@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -53,7 +54,7 @@ public class SubsystemManager {
      * periodic debe recibir el TelemetryPacket por tick (dashboard) y pasar
      * exactamente ese packet a las Actions que ejecutamos.
      */
-    public void periodic(MecanumDrive drive, TelemetryPacket packet, int alianceMult) {
+    public void periodic(MecanumDrive drive, Supplier<AprilTagDetection> tagDetection, TelemetryPacket packet, int alianceMult) {
         if (stateQueue.isEmpty()) {
             scheduleState(RobotState.TRAVEL);
         }
@@ -80,7 +81,7 @@ public class SubsystemManager {
                     break;
 
                 case SHOOT:
-                    shooterAction = shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble,telemetry);
+                    shooterAction = shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, telemetry);
                     // shooterAction prepara y espera; cuando termine, arrancaremos intake.shoot()
                     intakeAction = null;
                     break;

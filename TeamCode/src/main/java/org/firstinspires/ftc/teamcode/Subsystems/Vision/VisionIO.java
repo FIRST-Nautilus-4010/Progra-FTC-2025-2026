@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Vision;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -10,22 +12,27 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterIO;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VisionIO {
     private static final boolean USE_WEBCAM = true;
 
     private final VisionPortal visionPortal;
-    private final AprilTagProcessor aprilTag;
+    private final AprilTagProcessor aprilTagProcessor;
     private final ShooterIO shooterIO;
 
     private final Position cameraPosition;
 
     private volatile Pose2dSimple lastRobotPose = null;
 
-    public VisionIO(HardwareMap hw, ShooterIO shooterIO) {
+    private List <AprilTagDetection> detectedTags = new ArrayList<>();
+    private final Telemetry telemetry;
+
+    public VisionIO(HardwareMap hw, ShooterIO shooterIO, Telemetry telemetry) {
         this.shooterIO = shooterIO;
 
         // Camera pose en metros y orientaciones en radianes
@@ -33,8 +40,7 @@ public class VisionIO {
 
         YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, 0, Math.toRadians(-90), 0, 0);
 
-        aprilTag = new AprilTagProcessor.Builder()
-                .setCameraPose(cameraPosition, cameraOrientation)
+        aprilTagProcessor = new AprilTagProcessor.Builder()
                 .build();
 
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -44,20 +50,10 @@ public class VisionIO {
             builder.setCamera(BuiltinCameraDirection.FRONT);
         }
 
-        builder.addProcessor(aprilTag);
+        builder.addProcessor(aprilTagProcessor);
         visionPortal = builder.build();
-    }
 
-    public void resume() {
-        try { visionPortal.resumeStreaming(); } catch (Exception ignored) {}
-    }
-
-    public void pause() {
-        try { visionPortal.stopStreaming(); } catch (Exception ignored) {}
-    }
-
-    public void close() {
-        try { visionPortal.close(); } catch (Exception ignored) {}
+        this.telemetry = telemetry;
     }
 
     /**
@@ -65,10 +61,11 @@ public class VisionIO {
      * corrige heading con shooterIO.getYaw() y guarda pose en metros/rad.
      */
     public void update() {
-        List<AprilTagDetection> dets = aprilTag.getDetections();
-        if (dets == null || dets.isEmpty()) return;
+        detectedTags = aprilTagProcessor.getDetections();
 
-        AprilTagDetection d = dets.get(0);
+        if (detectedTags == null || detectedTags.isEmpty()) return;
+
+        AprilTagDetection d = detectedTags.get(0);
 
         double camX = d.robotPose.getPosition().x;
         double camY = d.robotPose.getPosition().y;
@@ -88,6 +85,46 @@ public class VisionIO {
         double correctedHeading = normalize(camYaw + turretYaw);
 
         lastRobotPose = new Pose2dSimple(robotX, robotY, correctedHeading);
+    }
+
+    public List<AprilTagDetection> getDetectedTags() {
+        return detectedTags;
+    }
+
+    public void displayDetectionTelemetry(AprilTagDetection detectedId) {
+        if (detectedId == null) {return;}
+
+        if (detectedId.metadata != null) {
+            telemetry.addLine(String.format("\n==== (ID %d) %s", detectedId.id, detectedId.metadata.name));
+            telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detectedId.ftcPose.x, detectedId.ftcPose.y, detectedId.ftcPose.z));
+            telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detectedId.ftcPose.pitch, detectedId.ftcPose.roll, detectedId.ftcPose.yaw));
+            telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detectedId.ftcPose.range, detectedId.ftcPose.bearing, detectedId.ftcPose.elevation));
+        } else {
+            telemetry.addLine(String.format("\n==== (ID %d) Unknown", detectedId.id));
+            telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detectedId.center.x, detectedId.center.y));
+        }
+    }
+
+    public AprilTagDetection getTagBySpecificId(int id) {
+        for (AprilTagDetection detection : detectedTags) {
+            if (detection.id == id) {
+                return detection;
+            }
+        }
+
+        return null;
+    }
+
+    public void resume() {
+        try { visionPortal.resumeStreaming(); } catch (Exception ignored) {}
+    }
+
+    public void pause() {
+        try { visionPortal.stopStreaming(); } catch (Exception ignored) {}
+    }
+
+    public void close() {
+        try { visionPortal.close(); } catch (Exception ignored) {}
     }
 
     public Pose2dSimple getLastRobotPose() { return lastRobotPose; }

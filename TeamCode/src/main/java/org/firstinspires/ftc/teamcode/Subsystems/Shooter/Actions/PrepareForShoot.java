@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeIO;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterIO;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 
 import java.util.function.Supplier;
 
@@ -30,10 +32,13 @@ public class PrepareForShoot implements Action {
     private double pitch;
     private double yaw;
     private double vel;
+    private double distance;
+
+    private final Supplier<AprilTagDetection> tagDetection;
 
 
 
-    public PrepareForShoot(ShooterIO io, Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Telemetry telemetry) {
+    public PrepareForShoot(ShooterIO io, Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Supplier<AprilTagDetection> tagDetection, Telemetry telemetry) {
         this.io = io;
         this.intakeIO = new IntakeIO(io.getHardwareMap());
         this.distanceWithTargetX = distanceWithTargetX;
@@ -41,6 +46,7 @@ public class PrepareForShoot implements Action {
         this.botYaw = botYaw;
 
         this.telemetry = telemetry;
+        this.tagDetection = tagDetection;
     }
 
     @Override
@@ -58,8 +64,20 @@ public class PrepareForShoot implements Action {
             intakeIO.setPwr(0);
         }
 
-        double distance = Math.hypot(distanceWithTargetY.get() * 0.0254,
-                distanceWithTargetX.get() * 0.0254) - .3;
+        if (tagDetection.get() == null) {
+            // ---- CÁLCULO DEL YAW---
+            double yaw = Math.atan2(distanceWithTargetY.get() * 0.0254,
+                    distanceWithTargetX.get() * 0.0254)
+                    - botYaw.get();
+            distance = Math.hypot(distanceWithTargetY.get() * 0.0254,
+                    distanceWithTargetX.get() * 0.0254) - .3;
+
+        } else  {
+            AprilTagPoseFtc pose = tagDetection.get().ftcPose;
+
+            yaw = pose.yaw;
+            distance = Math.hypot(pose.x, pose.y);
+        }
 
         double vel = 7;
 
@@ -104,11 +122,6 @@ public class PrepareForShoot implements Action {
                 pitch = Math.toRadians(45);
             }
         }
-
-        // ---- CÁLCULO DEL YAW---
-        double yaw = Math.atan2(distanceWithTargetY.get() * 0.0254,
-                distanceWithTargetX.get() * 0.0254)
-                - botYaw.get();
 
         io.setYaw(yaw);
         io.setPitch(pitch);

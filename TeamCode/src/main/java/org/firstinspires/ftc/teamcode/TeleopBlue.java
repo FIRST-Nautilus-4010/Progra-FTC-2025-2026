@@ -40,14 +40,14 @@ public class TeleopBlue extends OpMode {
     @Override
     public void init() {
         hammerShooter = hardwareMap.get(Servo.class, "hammerS");
-        drive = new MecanumDrive(hardwareMap, new Pose2d(30, -14,  -Math.PI / 2));
+        drive = new MecanumDrive(hardwareMap, AutonomousBlue.lastPose.get());
         subsystemManager = new SubsystemManager(hardwareMap, telemetry);
 
         shooter = new ShooterIO(hardwareMap);
-        vision = new VisionIO(hardwareMap, shooter);
+        vision = new VisionIO(hardwareMap, shooter, telemetry);
         vision.resume();
 
-        drive.localizer.setPose(new Pose2d(49.7, -                                         17.4,  -Math.PI / 2));
+        drive.localizer.setPose(new Pose2d(54.3, -12.9,  -Math.PI / 2));
         initialPoseSet = false;
 
         allianceDetector = new AllianceDetector();
@@ -68,11 +68,11 @@ public class TeleopBlue extends OpMode {
 
     @Override
     public void loop() {
-        subsystemManager.periodic(drive, new TelemetryPacket(), -1);
+        subsystemManager.periodic(drive, () -> vision.getTagBySpecificId(20), new TelemetryPacket(), -1);
 
         vision.update();
         Pose2dSimple vp = vision.getLastRobotPose();
-
+        /*
         // === DETECCIÓN DE ALIANZA ===
         if (!allianceDecided){
             if (allianceDetector.processPose(vp)){
@@ -85,6 +85,8 @@ public class TeleopBlue extends OpMode {
 
             }
         }
+        */
+
         // === LECTURA DE STICKS ===
         double driveY = -gamepad1.left_stick_x;  // Adelante/Atrás
         double driveX = -gamepad1.left_stick_y;  // Lateral

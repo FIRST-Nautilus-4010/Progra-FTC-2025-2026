@@ -76,8 +76,10 @@ public class ShooterIO {
     }
 
     public void setVel(double vel) {
-        launcherMotorTop.setVelocity(-vel);
-        launcherMotorBottom.setVelocity(vel);
+        double tps = 28 * (vel / 60);
+
+        launcherMotorTop.setVelocity(-tps);
+        launcherMotorBottom.setVelocity(tps);
     }
 
     public double getYaw() {
@@ -90,6 +92,6 @@ public class ShooterIO {
     }
 
     public double getVel() {
-        return -launcherMotorTop.getVelocity();
+        return 60 * (-launcherMotorTop.getVelocity() / 28);
     }
 }

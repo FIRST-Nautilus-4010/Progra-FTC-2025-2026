@@ -14,43 +14,55 @@ import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.Actions.PrepareForShoot;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionIO;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-@Autonomous(name="AutonomousRed", group="Testing")
+import java.util.function.Supplier;
+
+@Autonomous(name="AutonomusRed", group="Testing")
 public class AutonomousRed extends LinearOpMode {
 
     private static final double PPG_POS = -11.6;
     private static final double PGP_POS = 12.2;
     private static final double GPP_POS = 36;
 
+    public static Supplier<Pose2d> lastPose = () -> new Pose2d(-70+8, 46.6 - 7.4,  Math.PI / 2);
+
+    private AprilTagDetection tagDetection;
+    private VisionIO vision;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
         // Inicializa el drive y la posición inicial
-        Pose2d startPose = new Pose2d(-70+8, 46.6 - 7.4,  Math.PI / 2);
+        Pose2d startPose = new Pose2d(-70+8, 46.6 - 7.4,  -Math.PI / 2);
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
         drive.localizer.setPose(startPose);
 
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-        TelemetryPacket packet = new TelemetryPacket();
-
         ShooterSubsystem shooter = new ShooterSubsystem(hardwareMap);
-        IntakeSubsystem intakeSubsystem = new IntakeSubsystem(hardwareMap, telemetry);
+        IntakeSubsystem intake = new IntakeSubsystem(hardwareMap, telemetry);
+
+        vision = new VisionIO(hardwareMap, shooter.getIO(), telemetry);
+
+        lastPose = drive.localizer::getPose;
 
         Action prepareForShoot = shooter.prepareForShoot(
                 () -> -64 - drive.localizer.getPose().position.x,
                 () -> (59 - drive.localizer.getPose().position.y),
                 () -> drive.localizer.getPose().heading.toDouble(),
+                ()-> vision.getTagBySpecificId(24),
                 telemetry
         );
-        Action take = intakeSubsystem.take();
-        Action shoot = intakeSubsystem.shoot();
-        Action stop = intakeSubsystem.stop();
+        Action take = intake.take();
+        Action shoot = intake.shoot();
+        Action stop = intake.stop();
 
         // Construye la acción (trajectory) del robot
         Action traj = drive.actionBuilder(startPose)
                 .strafeTo(new Vector2d(-30, 28))
 
                 .stopAndAdd(prepareForShoot)
+                .waitSeconds(2)
                 .stopAndAdd(shoot)
 
                 // PPG
@@ -61,6 +73,7 @@ public class AutonomousRed extends LinearOpMode {
                 .stopAndAdd(stop)
                 .strafeToConstantHeading(new Vector2d(-36.3, 31.5))
                 .stopAndAdd(prepareForShoot)
+                .waitSeconds(2)
                 .stopAndAdd(shoot)
 
                 // PGP
@@ -71,6 +84,7 @@ public class AutonomousRed extends LinearOpMode {
                 .stopAndAdd(stop)
                 .strafeToConstantHeading(new Vector2d(-7.9, 19.9))
                 .stopAndAdd(prepareForShoot)
+                .waitSeconds(2)
                 .stopAndAdd(shoot)
 
                 // GPP
@@ -81,6 +95,7 @@ public class AutonomousRed extends LinearOpMode {
                 .stopAndAdd(stop)
                 .strafeToConstantHeading(new Vector2d(54.3, 12.9))
                 .stopAndAdd(prepareForShoot)
+                .waitSeconds(2)
                 .stopAndAdd(shoot)
 
                 .build();
@@ -92,6 +107,11 @@ public class AutonomousRed extends LinearOpMode {
         // Ejecuta la acción y actualiza la pose en tiempo real
         while (opModeIsActive()) {
             Actions.runBlocking(traj);
+
+            vision.update();
+            vision.displayDetectionTelemetry(vision.getTagBySpecificId(24));
+
+            telemetry.update();
         }
     }
 }

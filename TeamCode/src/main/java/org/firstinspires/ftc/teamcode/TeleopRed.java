@@ -10,11 +10,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.AllianceDetector;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionIO;
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionIO.Pose2dSimple;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterIO;
 
 
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @TeleOp(name="TeleopRed", group="Regional")
 public class TeleopRed extends OpMode {
@@ -34,20 +34,21 @@ public class TeleopRed extends OpMode {
     private AllianceDetector allianceDetector;
     private boolean allianceDecided = false;
     private Servo hammerShooter;
-
+    private AprilTagDetection tagDetection;
 
 
     @Override
     public void init() {
+        tagDetection = vision.getTagBySpecificId(24);
+
         hammerShooter = hardwareMap.get(Servo.class, "hammerS");
-        drive = new MecanumDrive(hardwareMap, new Pose2d(60, 14,  Math.PI / 2));
+        drive = new MecanumDrive(hardwareMap, AutonomousRed.lastPose.get());
         subsystemManager = new SubsystemManager(hardwareMap, telemetry);
 
         shooter = new ShooterIO(hardwareMap);
-        vision = new VisionIO(hardwareMap, shooter);
+        vision = new VisionIO(hardwareMap, shooter, telemetry);
         vision.resume();
 
-        drive.localizer.setPose(new Pose2d(49.7, 17.4, Math.PI / 2));
         initialPoseSet = false;
 
         allianceDetector = new AllianceDetector();
@@ -58,8 +59,6 @@ public class TeleopRed extends OpMode {
 
         allianceDecided = false;
 
-
-
         telemetry.addLine("Test RR + Mecanum listo");
         telemetry.addData("status", "init complete");
         telemetry.update();
@@ -68,9 +67,10 @@ public class TeleopRed extends OpMode {
 
     @Override
     public void loop() {
-        subsystemManager.periodic(drive, new TelemetryPacket(), 1);
+        subsystemManager.periodic(drive, ()-> vision.getTagBySpecificId(24), new TelemetryPacket(), 1);
 
         vision.update();
+        /*
         Pose2dSimple vp = vision.getLastRobotPose();
 
         // === DETECCIÓN DE ALIANZA ===
@@ -85,6 +85,7 @@ public class TeleopRed extends OpMode {
 
             }
         }
+        */
         // === LECTURA DE STICKS ===
         double driveY = -gamepad1.left_stick_x;  // Adelante/Atrás
         double driveX = -gamepad1.left_stick_y;  // Lateral
@@ -148,6 +149,8 @@ public class TeleopRed extends OpMode {
         telemetry.addData("samples", allianceDetector.getSamples());
         telemetry.addData("red", allianceDetector.getRedCount());
         telemetry.addData("blue", allianceDetector.getBlueCount());
+
+        vision.displayDetectionTelemetry(tagDetection);
 
         telemetry.update();
     }
