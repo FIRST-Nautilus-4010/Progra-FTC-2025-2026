@@ -52,7 +52,7 @@ public class SubsystemManager {
 
     /**
      * periodic debe recibir el TelemetryPacket por tick (dashboard) y pasar
-     * exactamente ese packet a las Actions que ejecutamos.
+     * exactame|nte ese packet a las Actions que ejecutamos.
      */
     public void periodic(MecanumDrive drive, Supplier<AprilTagDetection> tagDetection, TelemetryPacket packet, int alianceMult) {
         if (stateQueue.isEmpty()) {

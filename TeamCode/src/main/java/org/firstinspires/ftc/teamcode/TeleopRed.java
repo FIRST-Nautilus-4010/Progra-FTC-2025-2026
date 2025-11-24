@@ -39,7 +39,7 @@ public class TeleopRed extends OpMode {
 
     @Override
     public void init() {
-        tagDetection = vision.getTagBySpecificId(24);
+
 
         hammerShooter = hardwareMap.get(Servo.class, "hammerS");
         drive = new MecanumDrive(hardwareMap, AutonomousRed.lastPose.get());
@@ -48,6 +48,7 @@ public class TeleopRed extends OpMode {
         shooter = new ShooterIO(hardwareMap);
         vision = new VisionIO(hardwareMap, shooter, telemetry);
         vision.resume();
+        tagDetection = vision.getTagBySpecificId(24);
 
         initialPoseSet = false;
 
