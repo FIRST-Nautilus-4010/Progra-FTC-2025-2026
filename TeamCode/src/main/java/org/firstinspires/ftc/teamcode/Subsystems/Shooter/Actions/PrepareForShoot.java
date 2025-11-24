@@ -70,7 +70,7 @@ public class PrepareForShoot implements Action {
                     distanceWithTargetX.get() * 0.0254)
                     - botYaw.get();
             distance = Math.hypot(distanceWithTargetY.get() * 0.0254,
-                    distanceWithTargetX.get() * 0.0254) - .3;
+                    distanceWithTargetX.get() * 0.0254);
 
         } else  {
             AprilTagPoseFtc pose = tagDetection.get().ftcPose;
