@@ -52,6 +52,7 @@ public class AutonomousBlue extends LinearOpMode {
                 () -> (-59 - drive.localizer.getPose().position.y),
                 () -> drive.localizer.getPose().heading.toDouble(),
                 () -> vision.getTagBySpecificId(20),
+                2.5,
                 telemetry
         );
         Action take = intakeSubsystem.take();

@@ -47,7 +47,6 @@ public class TeleopBlue extends OpMode {
         vision = new VisionIO(hardwareMap, shooter, telemetry);
         vision.resume();
 
-        drive.localizer.setPose(new Pose2d(54.3, -12.9,  -Math.PI / 2));
         initialPoseSet = false;
 
         allianceDetector = new AllianceDetector();
@@ -96,7 +95,7 @@ public class TeleopBlue extends OpMode {
 
         // === ACTUALIZA POSE ===
         drive.updatePoseEstimate();
-        double heading = -pose.heading.toDouble() - Math.toRadians(90);
+        double heading = -pose.heading.toDouble() - Math.toRadians(180);
 
         // === CONVERSIÓN FIELD ORIENTED ===
         double rotatedX = driveX * Math.cos(heading) - driveY * Math.sin(heading);
@@ -108,7 +107,7 @@ public class TeleopBlue extends OpMode {
                 turn
         ));
 
-        if (gamepad2.a && !alreadyPressedA) {
+        if (gamepad1.a && !alreadyPressedA) {
             subsystemManager.setState(RobotState.INTAKE);
 
             alreadyPressedA = true;
@@ -116,7 +115,7 @@ public class TeleopBlue extends OpMode {
             alreadyPressedA = false;
         }
 
-        if (gamepad2.b && !alreadyPressedB) {
+        if (gamepad1.b && !alreadyPressedB) {
             subsystemManager.setState(RobotState.SHOOT);
             alreadyPressedB = true;
         } else {
@@ -124,20 +123,15 @@ public class TeleopBlue extends OpMode {
         }
 
 
-        if (gamepad2.x && !alreadyPressedX) {
+        if (gamepad1.x && !alreadyPressedX) {
             subsystemManager.setState(RobotState.TRAVEL);
             alreadyPressedX = true;
         } else {
             alreadyPressedX = false;
         }
-        if (gamepad2.y && !alreadyPressedY){
-            hammerShooter.setPosition(0);
-        }else{
-            hammerShooter.setPosition(1);
-        }
 
-        if (gamepad2.dpad_down) {
-            drive.localizer.setPose(new Pose2d(pose.position.x, pose.position.y, Math.PI / 2));
+        if (gamepad1.dpad_down) {
+            drive.localizer.setPose(new Pose2d(pose.position.x, pose.position.y, -Math.PI / 2));
         }
 
 

@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -21,11 +24,11 @@ public class SubsystemManager {
     private final Queue<RobotState> stateQueue;
 
     // Actions activas para el estado actual (no recrear cada tick)
-    private Action intakeAction = null;
-    private Action shooterAction = null;
+    private Action runningAction = null;
     private RobotState cachedState = null;
 
     private final Telemetry telemetry;
+    private final int allianceMult = -1;
 
     // Opcional: Referencia a un gestor de visión si lo tienes
     // private final VisionManager vision;
@@ -36,7 +39,6 @@ public class SubsystemManager {
         stateQueue = new LinkedList<>();
 
         this.telemetry = telemetry;
-        // this.vision = new VisionManager(hardwareMap, telemetry); // si usas visión
     }
 
     public void scheduleState(RobotState state) {
@@ -54,7 +56,7 @@ public class SubsystemManager {
      * periodic debe recibir el TelemetryPacket por tick (dashboard) y pasar
      * exactame|nte ese packet a las Actions que ejecutamos.
      */
-    public void periodic(MecanumDrive drive, Supplier<AprilTagDetection> tagDetection, TelemetryPacket packet, int alianceMult) {
+    public void periodic(MecanumDrive drive, Supplier<AprilTagDetection> tagDetection, TelemetryPacket telemetryPacket, int alianceMult) {
         if (stateQueue.isEmpty()) {
             scheduleState(RobotState.TRAVEL);
         }
@@ -64,48 +66,38 @@ public class SubsystemManager {
         // Si entramos en un nuevo estado, inicializamos las Actions asociadas UNA VEZ
         if (cachedState != current) {
             // limpiar cualquier action previa (por seguridad)
-            intakeAction = null;
-            shooterAction = null;
+            runningAction = null;
             cachedState = current;
 
             switch (current) {
                 case TRAVEL:
-                    // travel() debe devolver una Action válida (p. ej. SetVel(0) para intake)
-                    intakeAction = intake.stop();
-                    shooterAction = shooter.stop();
+                    runningAction = new ParallelAction(
+                            intake.stop(),
+                            shooter.stop()
+                    );
                     break;
 
                 case INTAKE:
-                    intakeAction = intake.take();
-                    shooterAction = shooter.intake();
+                    runningAction = new ParallelAction(
+                            intake.take(),
+                            shooter.intake()
+                    );
                     break;
 
                 case SHOOT:
-                    shooterAction = shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, telemetry);
-                    // shooterAction prepara y espera; cuando termine, arrancaremos intake.shoot()
-                    intakeAction = null;
+                    runningAction = new SequentialAction(
+                            shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 2.5,telemetry),
+                            intake.shoot(),
+                            intake.stop(),
+                            shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 0.25, telemetry),
+                            intake.hammer()
+                    );
                     break;
             }
         }
 
-        // Ejecutar Actions activas (si existen) pasando el mismo TelemetryPacket
-        boolean shooterRunning = shooterAction != null && shooterAction.run(packet);
-        boolean intakeRunning = intakeAction != null && intakeAction.run(packet);
-
-        // Caso especial: en SHOOT, cuando prepareForShoot termina, creamos intake.shoot() una vez
-        if (cachedState == RobotState.SHOOT && !shooterRunning && intakeAction == null) {
-            intakeAction = intake.shoot();
-            intakeRunning = intakeAction != null && intakeAction.run(packet);
-        }
-        
-
-        // Si todas las Actions asociadas al estado han terminado, avanzamos en la cola
-        boolean anyRunning = shooterRunning || intakeRunning;
-        if (!anyRunning) {
-            stateQueue.remove();
-            cachedState = null;
-            shooterAction = null;
-            intakeAction = null;
+        if (runningAction != null) {
+           runningAction.run(telemetryPacket);
         }
 
         intake.periodic();

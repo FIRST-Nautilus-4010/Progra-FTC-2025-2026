@@ -9,12 +9,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeIO;
 
-public class Take implements Action {
+public class Hammer implements Action {
     private final IntakeIO io;
     private int lastUsedStage = 0;
     private Servo hammerShooter;
 
-    public Take(IntakeIO io, HardwareMap hardwareMap) {
+    public Hammer(IntakeIO io, HardwareMap hardwareMap) {
         this.io = io;
         hammerShooter = hardwareMap.get(Servo.class, "hammerS");hammerShooter.setPosition(1);
 
@@ -23,13 +23,7 @@ public class Take implements Action {
 
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
-        io.setPwr(-1);
-        hammerShooter.setPosition(1);
-        //io.setBlockState(true);
-
-        if (isFinished()) {
-            onEnd();
-        }
+        hammerShooter.setPosition(0);
 
         return !isFinished();
     }
@@ -39,6 +33,6 @@ public class Take implements Action {
     }
 
     public boolean isFinished() {
-        return false;
+        return true;
     }
 }

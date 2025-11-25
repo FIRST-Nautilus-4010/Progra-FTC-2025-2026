@@ -27,7 +27,7 @@ public class MeepMeepTesting {
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 16)
-                .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(INITIAL_POS_RED_2)
+                .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(54.3, -12.9,  -Math.PI / 2))
                         //.strafeTo(new Vector2d(-30, 28)) // solo en pos 1
 
                         // Disparo de precargadas

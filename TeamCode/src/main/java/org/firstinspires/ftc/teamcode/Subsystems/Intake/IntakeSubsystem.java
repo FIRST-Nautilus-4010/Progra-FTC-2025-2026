@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake.Actions.Hammer;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.Actions.Shoot;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.Actions.Take;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.Actions.setVel;
@@ -35,6 +36,9 @@ public class IntakeSubsystem {
         return new setVel(io, 0);
     }
 
+    public Action hammer() {
+        return new Hammer(io, hardwareMap);
+    }
 
     // TODO: agregar acción que detenga el intake al entrar al estado travel
     public Action travel() {

@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -51,6 +52,7 @@ public class AutonomousRed extends LinearOpMode {
                 () -> (59 - drive.localizer.getPose().position.y),
                 () -> drive.localizer.getPose().heading.toDouble(),
                 ()-> vision.getTagBySpecificId(24),
+                2.5,
                 telemetry
         );
         Action take = intake.take();
@@ -61,9 +63,13 @@ public class AutonomousRed extends LinearOpMode {
         Action traj = drive.actionBuilder(startPose)
                 .strafeTo(new Vector2d(-30, 28))
 
-                .stopAndAdd(prepareForShoot)
-                .waitSeconds(2)
-                .stopAndAdd(shoot)
+                .stopAndAdd(new SequentialAction(
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 2.5,telemetry),
+                        intake.shoot(),
+                        intake.stop(),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 0.25, telemetry),
+                        intake.hammer()
+                ))
 
                 // PPG
                 .strafeToConstantHeading(new Vector2d(PPG_POS, 28 - 3))
@@ -72,9 +78,13 @@ public class AutonomousRed extends LinearOpMode {
                 .strafeToConstantHeading(new Vector2d(PPG_POS, 28 - 3 + 18))
                 .stopAndAdd(stop)
                 .strafeToConstantHeading(new Vector2d(-36.3, 31.5))
-                .stopAndAdd(prepareForShoot)
-                .waitSeconds(2)
-                .stopAndAdd(shoot)
+                .stopAndAdd(new SequentialAction(
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 2.5,telemetry),
+                        intake.shoot(),
+                        intake.stop(),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 0.25, telemetry),
+                        intake.hammer()
+                ))
 
                 // PGP
                 .strafeToConstantHeading(new Vector2d(PGP_POS, 28 - 3))
@@ -83,9 +93,13 @@ public class AutonomousRed extends LinearOpMode {
                 .strafeToConstantHeading(new Vector2d(PGP_POS, 28 - 3 + 18))
                 .stopAndAdd(stop)
                 .strafeToConstantHeading(new Vector2d(-7.9, 19.9))
-                .stopAndAdd(prepareForShoot)
-                .waitSeconds(2)
-                .stopAndAdd(shoot)
+                .stopAndAdd(new SequentialAction(
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 2.5,telemetry),
+                        intake.shoot(),
+                        intake.stop(),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 0.25, telemetry),
+                        intake.hammer()
+                ))
 
                 // GPP
                 .strafeToConstantHeading(new Vector2d(GPP_POS, 28 - 3))
@@ -94,9 +108,13 @@ public class AutonomousRed extends LinearOpMode {
                 .strafeToConstantHeading(new Vector2d(GPP_POS, 28 - 3 + 18))
                 .stopAndAdd(stop)
                 .strafeToConstantHeading(new Vector2d(54.3, 12.9))
-                .stopAndAdd(prepareForShoot)
-                .waitSeconds(2)
-                .stopAndAdd(shoot)
+                .stopAndAdd(new SequentialAction(
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 2.5,telemetry),
+                        intake.shoot(),
+                        intake.stop(),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 0.25, telemetry),
+                        intake.hammer()
+                ))
 
                 .build();
 

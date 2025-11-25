@@ -38,7 +38,7 @@ public class PrepareForShoot implements Action {
 
 
 
-    public PrepareForShoot(ShooterIO io, Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Supplier<AprilTagDetection> tagDetection, Telemetry telemetry) {
+    public PrepareForShoot(ShooterIO io, Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Supplier<AprilTagDetection> tagDetection, double accel, Telemetry telemetry) {
         this.io = io;
         this.intakeIO = new IntakeIO(io.getHardwareMap());
         this.distanceWithTargetX = distanceWithTargetX;
@@ -47,6 +47,8 @@ public class PrepareForShoot implements Action {
 
         this.telemetry = telemetry;
         this.tagDetection = tagDetection;
+
+        this.accel = accel;
     }
 
     @Override
@@ -57,16 +59,9 @@ public class PrepareForShoot implements Action {
             initialized = true;
         }
 
-        if (elapsedTime.milliseconds() < 50) {
-            intakeIO.setPwr(1);
-            io.setVel(-1300);
-        } else {
-            intakeIO.setPwr(0);
-        }
-
         if (tagDetection.get() == null) {
             // ---- CÁLCULO DEL YAW---
-            double yaw = Math.atan2(distanceWithTargetY.get() * 0.0254,
+             yaw = Math.atan2(distanceWithTargetY.get() * 0.0254,
                     distanceWithTargetX.get() * 0.0254)
                     - botYaw.get();
             distance = Math.hypot(distanceWithTargetY.get() * 0.0254,
@@ -75,7 +70,7 @@ public class PrepareForShoot implements Action {
         } else  {
             AprilTagPoseFtc pose = tagDetection.get().ftcPose;
 
-            yaw = pose.yaw;
+            yaw = Math.toRadians(pose.yaw);
             distance = Math.hypot(pose.x, pose.y) * 0.0254;
         }
 
@@ -83,7 +78,6 @@ public class PrepareForShoot implements Action {
 
         if (distance < 2) {
             vel = 5.4;
-            accel = 2.5;
         }
 
         double g   = accel;                 // debería ser 9.81
@@ -137,6 +131,6 @@ public class PrepareForShoot implements Action {
     }
 
     public boolean isFinished() {
-        return Math.abs(io.getVel() - ((vel * 60) / (0.1016 * Math.PI))) < 50;
+        return elapsedTime.milliseconds() > 2000;
     }
 }
