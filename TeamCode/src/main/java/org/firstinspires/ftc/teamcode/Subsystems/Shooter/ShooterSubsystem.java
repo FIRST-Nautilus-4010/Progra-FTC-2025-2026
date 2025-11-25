@@ -17,8 +17,8 @@ public class ShooterSubsystem {
         io = new ShooterIO(hardwareMap);
     }
 
-    public Action prepareForShoot(Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Supplier<AprilTagDetection> tagDetection, double accel, Telemetry telemetry) {
-        return new PrepareForShoot(io, distanceWithTargetX, distanceWithTargetY, botYaw, tagDetection, accel, telemetry);
+    public Action prepareForShoot(Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Supplier<AprilTagDetection> tagDetection, double velOffset, Telemetry telemetry) {
+        return new PrepareForShoot(io, distanceWithTargetX, distanceWithTargetY, botYaw, tagDetection, velOffset, telemetry);
     }
 
     public Action intake() {

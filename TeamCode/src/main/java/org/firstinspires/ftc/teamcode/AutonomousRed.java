@@ -64,10 +64,10 @@ public class AutonomousRed extends LinearOpMode {
                 .strafeTo(new Vector2d(-30, 28))
 
                 .stopAndAdd(new SequentialAction(
-                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 2.5,telemetry),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y))), drive.localizer.getPose().heading::toDouble, () -> tagDetection, 2.5,telemetry),
                         intake.shoot(),
                         intake.stop(),
-                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 0.25, telemetry),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y))), drive.localizer.getPose().heading::toDouble, () -> tagDetection, 0.25, telemetry),
                         intake.hammer()
                 ))
 
@@ -79,10 +79,10 @@ public class AutonomousRed extends LinearOpMode {
                 .stopAndAdd(stop)
                 .strafeToConstantHeading(new Vector2d(-36.3, 31.5))
                 .stopAndAdd(new SequentialAction(
-                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 2.5,telemetry),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y))), drive.localizer.getPose().heading::toDouble, () -> tagDetection, 2.5,telemetry),
                         intake.shoot(),
                         intake.stop(),
-                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 0.25, telemetry),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y))), drive.localizer.getPose().heading::toDouble, () -> tagDetection, -0.9, telemetry),
                         intake.hammer()
                 ))
 
@@ -94,10 +94,10 @@ public class AutonomousRed extends LinearOpMode {
                 .stopAndAdd(stop)
                 .strafeToConstantHeading(new Vector2d(-7.9, 19.9))
                 .stopAndAdd(new SequentialAction(
-                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 2.5,telemetry),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y))), drive.localizer.getPose().heading::toDouble, () -> tagDetection, 2.5,telemetry),
                         intake.shoot(),
                         intake.stop(),
-                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 0.25, telemetry),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y))), drive.localizer.getPose().heading::toDouble,() ->  tagDetection, 0.25, telemetry),
                         intake.hammer()
                 ))
 
@@ -109,10 +109,10 @@ public class AutonomousRed extends LinearOpMode {
                 .stopAndAdd(stop)
                 .strafeToConstantHeading(new Vector2d(54.3, 12.9))
                 .stopAndAdd(new SequentialAction(
-                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 2.5,telemetry),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y))), drive.localizer.getPose().heading::toDouble, () -> tagDetection, 2.5,telemetry),
                         intake.shoot(),
                         intake.stop(),
-                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, 0.25, telemetry),
+                        shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y))), drive.localizer.getPose().heading::toDouble, () -> tagDetection, 0.25, telemetry),
                         intake.hammer()
                 ))
 

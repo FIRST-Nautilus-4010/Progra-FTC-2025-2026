@@ -23,7 +23,7 @@ public class PrepareForShoot implements Action {
     private final Supplier<Double> botYaw;
 
     private final double targetHeight = 0.5;
-    private double accel = 2.5;
+    private double accel = 9.81;
     private final Telemetry telemetry;
 
     private ElapsedTime elapsedTime;
@@ -36,9 +36,11 @@ public class PrepareForShoot implements Action {
 
     private final Supplier<AprilTagDetection> tagDetection;
 
+    private double velOffset;
 
 
-    public PrepareForShoot(ShooterIO io, Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Supplier<AprilTagDetection> tagDetection, double accel, Telemetry telemetry) {
+
+    public PrepareForShoot(ShooterIO io, Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Supplier<AprilTagDetection> tagDetection, double velOffset, Telemetry telemetry) {
         this.io = io;
         this.intakeIO = new IntakeIO(io.getHardwareMap());
         this.distanceWithTargetX = distanceWithTargetX;
@@ -48,7 +50,7 @@ public class PrepareForShoot implements Action {
         this.telemetry = telemetry;
         this.tagDetection = tagDetection;
 
-        this.accel = accel;
+        this.velOffset = velOffset;
     }
 
     @Override
@@ -74,10 +76,10 @@ public class PrepareForShoot implements Action {
             distance = Math.hypot(pose.x, pose.y) * 0.0254;
         }
 
-        double vel = 7;
+        double vel = 7 - velOffset;
 
         if (distance < 2) {
-            vel = 5.4;
+            vel = 5.4 - velOffset;
         }
 
 
@@ -118,7 +120,6 @@ public class PrepareForShoot implements Action {
 
         io.setYaw(yaw);
         io.setPitch(pitch);
-        //io.setPitch(Math.toRadians(45));
         io.setVel(((vel + velOffset) * 60) / (0.1016 * Math.PI));
 
         telemetry.addData("desiredShooterPitch", pitch);
