@@ -27,7 +27,7 @@ public class PrepareForShoot implements Action {
     private final Telemetry telemetry;
 
     private ElapsedTime elapsedTime;
-    private boolean initialized = false;
+    private boolean initialized  = false;
 
     private double pitch;
     private double yaw;
@@ -80,38 +80,37 @@ public class PrepareForShoot implements Action {
             vel = 5.4;
         }
 
-        double g   = accel;                 // debería ser 9.81
-        double x   = distance;              // distancia horizontal al objetivo
-        double y   = targetHeight;          // diferencia de altura
 
-        // ---- ECUACIÓN CORRECTA DEL TIRO PARABÓLICO ----
-        // A*T^2 + B*T + C = 0   con T = tan(theta)
+
+        double g = accel;
+        double x = distance;
+        double y = targetHeight;
+
         double A = (g * x * x) / (2.0 * vel * vel);
         double B = -x;
-        double C = A + y;
+        double C = y - A;
 
-        // discriminante
         double discriminant = B*B - 4*A*C;
 
         double pitch;
 
         if (discriminant < 0) {
-            // No hay solución real: la velocidad no basta
-            pitch = Math.toRadians(45);  // fallback
+            pitch = Math.toRadians(45);  // velocidad insuficiente
         } else {
             double sqrtD = Math.sqrt(discriminant);
 
-            double T1 = (-B + sqrtD) / (2.0 * A);
-            double T2 = (-B - sqrtD) / (2.0 * A);
+            double T1 = (-B + sqrtD) / (2*A);
+            double T2 = (-B - sqrtD) / (2*A);
 
-            double x0 = Math.toRadians(90) - Math.atan(T1);
-            double x1 = Math.toRadians(90) - Math.atan(T2);
+            // convertimos T = tan(theta) → theta
+            double theta1 = Math.atan(T1);
+            double theta2 = Math.atan(T2);
 
-            // elige la solución positiva
-            if (x0 < Math.toRadians(10) || x0 > Math.toRadians(75)) {
-                pitch = x1;
-            } else if (x1 < Math.toRadians(10) || x1 > Math.toRadians(75)) {
-                pitch = x0;
+            // elige ángulo válido
+            if (theta1 > Math.toRadians(10) && theta1 < Math.toRadians(80)) {
+                pitch = theta1;
+            } else if (theta2 > Math.toRadians(10) && theta2 < Math.toRadians(80)) {
+                pitch = theta2;
             } else {
                 pitch = Math.toRadians(45);
             }
@@ -119,7 +118,8 @@ public class PrepareForShoot implements Action {
 
         io.setYaw(yaw);
         io.setPitch(pitch);
-        io.setVel((vel * 60) / (0.1016 * Math.PI));
+        //io.setPitch(Math.toRadians(45));
+        io.setVel(((vel + velOffset) * 60) / (0.1016 * Math.PI));
 
         telemetry.addData("desiredShooterPitch", pitch);
         telemetry.addData("desiredShooterYaw", yaw);
