@@ -91,6 +91,11 @@ public class ShooterIO {
         //return pitchServo.getPosition();
     }
 
+    public void setYawPower(double power) {;
+        yawMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        yawMotor.setPower(power);
+    }
+
     public double getVel() {
         return 60 * (-launcherMotorTop.getVelocity() / 28);
     }

@@ -37,6 +37,12 @@ public class PrepareForShoot implements Action {
     private final Supplier<AprilTagDetection> tagDetection;
 
     private double velOffset;
+    private double lastError = 0;
+    private double integral = 0.0;
+
+    private final double kP = 0.0005;
+    private final double kI = 0.000;
+    private final double kD = 0.002;
 
 
 
@@ -55,13 +61,16 @@ public class PrepareForShoot implements Action {
 
     @Override
     public boolean run(@NonNull TelemetryPacket packet) {
+        double yawPower = 0;
 
         if (!initialized) {
             elapsedTime = new ElapsedTime();
             initialized = true;
+
         }
 
-        if (tagDetection.get() == null) {
+        //if (tagDetection.get() == null) {
+        if (false){
             // ---- CÁLCULO DEL YAW---
              yaw = Math.atan2(distanceWithTargetY.get() * 0.0254,
                     distanceWithTargetX.get() * 0.0254)
@@ -69,10 +78,47 @@ public class PrepareForShoot implements Action {
             distance = Math.hypot(distanceWithTargetY.get() * 0.0254,
                     distanceWithTargetX.get() * 0.0254);
 
-        } else  {
+        } else if (tagDetection.get() != null){
             AprilTagPoseFtc pose = tagDetection.get().ftcPose;
 
-            yaw = Math.toRadians(pose.yaw);
+            double dt = elapsedTime.seconds();
+            elapsedTime.reset();
+
+            if (dt < 0.001) dt = 0.001;
+            if (dt > 1.0) dt = 1.0;
+
+            double imageCenterX = 640 / 2.0;
+            double tagX = tagDetection.get().center.x;
+
+            double error = -(tagX - imageCenterX);
+
+            integral = Math.max(-50, Math.min(50, integral));
+
+            double derivative = (error - lastError) / dt;
+
+            double pidOutput =
+                    (kP * error) + (kI * integral) + (kD * derivative);
+
+            if (Math.abs(error) < 15) {
+                pidOutput = 0;
+                integral = 0;
+            }
+
+            yawPower = Math.max(
+                    -1,
+                    Math.min(1, pidOutput)
+            );
+
+            if (Double.isInfinite(yawPower)) {
+                yawPower = 0;
+                integral = 0;
+                lastError = 0;
+            }
+
+            io.setYawPower(yawPower);
+
+            lastError = error;
+
             distance = Math.hypot(pose.x, pose.y) * 0.0254;
         }
 
@@ -119,10 +165,12 @@ public class PrepareForShoot implements Action {
         }
 
         io.setYaw(yaw);
-        io.setPitch(pitch);
+        io.setPitch(Math.toRadians(90) - pitch);
         io.setVel(((vel + velOffset) * 60) / (0.1016 * Math.PI));
 
         telemetry.addData("desiredShooterPitch", pitch);
+        telemetry.addData("errorShooter", lastError);
+        telemetry.addData("power", yawPower);
         telemetry.addData("desiredShooterYaw", yaw);
         telemetry.addData("desiredShooterVel", (vel * 60) / (0.1016 * Math.PI));
         telemetry.addData("desiredShooterX", distanceWithTargetX.get() * 0.0254);
@@ -132,6 +180,7 @@ public class PrepareForShoot implements Action {
     }
 
     public boolean isFinished() {
-        return elapsedTime.milliseconds() > 2000;
+        //return elapsedTime.milliseconds() > 2000;
+        return false;
     }
 }

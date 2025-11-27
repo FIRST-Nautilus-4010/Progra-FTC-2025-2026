@@ -70,6 +70,7 @@ public class TeleopBlue extends OpMode {
         subsystemManager.periodic(drive, () -> vision.getTagBySpecificId(20), new TelemetryPacket(), -1);
 
         vision.update();
+        vision.displayDetectionTelemetry(vision.getTagBySpecificId(20));
         Pose2dSimple vp = vision.getLastRobotPose();
         /*
         // === DETECCIÓN DE ALIANZA ===
