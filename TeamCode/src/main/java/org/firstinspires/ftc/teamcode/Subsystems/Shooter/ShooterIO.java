@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -27,10 +28,11 @@ public class ShooterIO {
 
         yawMotor.setPositionPIDFCoefficients(100);
         yawMotor.setTargetPositionTolerance(10);
+
+        launcherMotorBottom.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void setYaw(double angle) {
-
         if (!(Math.abs(angle) > Math.PI/2)) {
             double motorTicks = 28.0;        // ticks por vuelta del motor
             double ratio = 36.0 * 1.9;       // relación total (68.4)
@@ -59,27 +61,25 @@ public class ShooterIO {
         yawMotor.setVelocity(0);
     }
 
-    public void setPitch(double angle) {
-        if (angle <= Math.toRadians(10)) {
+    public void setPitch(double pos) {
+        if (pos >= 1) {
             pitchServo.setPosition(1);
             return;
         }
 
-        if (angle >= Math.toRadians(75)) {
+        if (pos <= 0) {
             pitchServo.setPosition(0);
             return;
         }
 
-        pitchServo.setPosition(1 - (((angle - Math.toRadians(10)) / Math.toRadians(65))));
+        pitchServo.setPosition(pos);
 
         //pitchServo.setPosition(angle);
     }
 
     public void setVel(double vel) {
-        double tps = 28 * (vel / 60);
-
-        launcherMotorTop.setVelocity(-tps);
-        launcherMotorBottom.setVelocity(tps);
+        launcherMotorTop.setVelocity(vel);
+        launcherMotorBottom.setVelocity(vel);
     }
 
     public double getYaw() {
@@ -87,7 +87,7 @@ public class ShooterIO {
     }
 
     public double getPitch() {
-        return (((1 - pitchServo.getPosition())) * Math.toRadians(65)) + Math.toRadians(10);
+        return pitchServo.getPosition();
         //return pitchServo.getPosition();
     }
 
@@ -97,6 +97,6 @@ public class ShooterIO {
     }
 
     public double getVel() {
-        return 60 * (-launcherMotorTop.getVelocity() / 28);
+        return launcherMotorTop.getVelocity();
     }
 }

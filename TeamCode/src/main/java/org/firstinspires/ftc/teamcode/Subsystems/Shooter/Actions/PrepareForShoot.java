@@ -27,6 +27,7 @@ public class PrepareForShoot implements Action {
     private final Telemetry telemetry;
 
     private ElapsedTime elapsedTime;
+    private ElapsedTime finishTemp;
     private boolean initialized  = false;
 
     private double pitch;
@@ -40,7 +41,7 @@ public class PrepareForShoot implements Action {
     private double lastError = 0;
     private double integral = 0.0;
 
-    private final double kP = 0.0005;
+    private final double kP = 0.00005;
     private final double kI = 0.000;
     private final double kD = 0.002;
 
@@ -57,6 +58,8 @@ public class PrepareForShoot implements Action {
         this.tagDetection = tagDetection;
 
         this.velOffset = velOffset;
+
+        finishTemp = new ElapsedTime();
     }
 
     @Override
@@ -69,16 +72,17 @@ public class PrepareForShoot implements Action {
 
         }
 
-        //if (tagDetection.get() == null) {
-        if (false){
+        if (tagDetection.get() == null) {
             // ---- CÁLCULO DEL YAW---
              yaw = Math.atan2(distanceWithTargetY.get() * 0.0254,
                     distanceWithTargetX.get() * 0.0254)
                     - botYaw.get();
-            distance = Math.hypot(distanceWithTargetY.get() * 0.0254,
-                    distanceWithTargetX.get() * 0.0254);
+            distance = Math.sqrt(distanceWithTargetY.get() * 0.0254 * distanceWithTargetY.get() * 0.0254 +
+                    distanceWithTargetX.get() * 0.0254 * distanceWithTargetX.get() * 0.0254 + 0.76 * 0.76);
 
-        } else if (tagDetection.get() != null){
+            io.setYaw(Math.atan2(distanceWithTargetY.get(), distanceWithTargetX.get()));
+
+        } else {
             AprilTagPoseFtc pose = tagDetection.get().ftcPose;
 
             double dt = elapsedTime.seconds();
@@ -119,60 +123,20 @@ public class PrepareForShoot implements Action {
 
             lastError = error;
 
-            distance = Math.hypot(pose.x, pose.y) * 0.0254;
+            distance = Math.sqrt(pose.x * pose.x + pose.y * pose.y + pose.z * pose.z) * 0.0254;
         }
 
-        double vel = 7 - velOffset;
+        double pitch = 0.865995 * distance * distance - 2.57658 * distance + 2.3075;
 
-        if (distance < 2) {
-            vel = 5.4 - velOffset;
-        }
-
-
-
-        double g = accel;
-        double x = distance;
-        double y = targetHeight;
-
-        double A = (g * x * x) / (2.0 * vel * vel);
-        double B = -x;
-        double C = y - A;
-
-        double discriminant = B*B - 4*A*C;
-
-        double pitch;
-
-        if (discriminant < 0) {
-            pitch = Math.toRadians(45);  // velocidad insuficiente
-        } else {
-            double sqrtD = Math.sqrt(discriminant);
-
-            double T1 = (-B + sqrtD) / (2*A);
-            double T2 = (-B - sqrtD) / (2*A);
-
-            // convertimos T = tan(theta) → theta
-            double theta1 = Math.atan(T1);
-            double theta2 = Math.atan(T2);
-
-            // elige ángulo válido
-            if (theta1 > Math.toRadians(10) && theta1 < Math.toRadians(80)) {
-                pitch = theta1;
-            } else if (theta2 > Math.toRadians(10) && theta2 < Math.toRadians(80)) {
-                pitch = theta2;
-            } else {
-                pitch = Math.toRadians(45);
-            }
-        }
-
-        io.setYaw(yaw);
-        io.setPitch(Math.toRadians(90) - pitch);
-        io.setVel(((vel + velOffset) * 60) / (0.1016 * Math.PI));
+        io.setPitch(pitch);
+        io.setVel(-1400);
 
         telemetry.addData("desiredShooterPitch", pitch);
         telemetry.addData("errorShooter", lastError);
+        telemetry.addData("distance", distance);
         telemetry.addData("power", yawPower);
         telemetry.addData("desiredShooterYaw", yaw);
-        telemetry.addData("desiredShooterVel", (vel * 60) / (0.1016 * Math.PI));
+        telemetry.addData("desiredShooterVel", vel);
         telemetry.addData("desiredShooterX", distanceWithTargetX.get() * 0.0254);
         telemetry.addData("desiredShooterY", distanceWithTargetY.get() * 0.0254);
 
@@ -180,7 +144,8 @@ public class PrepareForShoot implements Action {
     }
 
     public boolean isFinished() {
-        //return elapsedTime.milliseconds() > 2000;
-        return false;
+        //return Math.abs(io.getVel() - 1400) < 50;
+        return finishTemp.milliseconds() > 3000;
+        //return false;
     }
 }

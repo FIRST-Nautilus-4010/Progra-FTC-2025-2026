@@ -22,7 +22,7 @@ public class ShooterSubsystem {
     }
 
     public Action intake() {
-        return new setVel(io, -6000);
+        return new setVel(io, 6000);
     }
 
     public Action stop() {

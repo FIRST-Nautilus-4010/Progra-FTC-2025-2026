@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Test;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionIO;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @TeleOp(name="TuneHood", group="test")
+@Config
 public class TuneHood extends OpMode {
 
     private Servo hood;
@@ -25,7 +27,9 @@ public class TuneHood extends OpMode {
 
     private DcMotorEx launcherTop;
     private DcMotorEx launcherBottom;
+    private boolean alreadyPressedY = false;
 
+    private Servo hammerShooter;
 
     @Override
     public void init() {
@@ -44,6 +48,8 @@ public class TuneHood extends OpMode {
 
         launcherTop.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         launcherBottom.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        hammerShooter = hardwareMap.get(Servo.class, "hammerS");
     }
 
     @Override
@@ -63,6 +69,12 @@ public class TuneHood extends OpMode {
             logged = true;
         }
         if (!gamepad1.a) logged = false;
+
+        if (gamepad1.y && !alreadyPressedY){
+            hammerShooter.setPosition(0);
+        }else{
+            hammerShooter.setPosition(1);
+        }
 
         telemetry.addData("Hood angle", hood.getPosition());
         vision.displayDetectionTelemetry(tagDetection);

@@ -8,30 +8,39 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 @TeleOp(name="VoltageBasedSpeedTest", group="test")
 public class VoltageBasedSpeedTest extends LinearOpMode {
 
-    DcMotorEx motor;
-
+    private DcMotorEx launcherMotorTop;
+    private DcMotorEx launcherMotorBottom;
     @Override
     public void runOpMode() throws InterruptedException {
 
-        motor = hardwareMap.get(DcMotorEx.class, "motor");
 
         waitForStart();
 
+        launcherMotorTop = hardwareMap.get(DcMotorEx.class, "launcherTop");
+        launcherMotorBottom = hardwareMap.get(DcMotorEx.class, "launcherBottom");
         double desiredVoltage = 10.0;
         double batteryVoltage = getBatteryVoltage();
         double power = desiredVoltage / batteryVoltage;
 
-        motor.setPower(power);
 
-        sleep(2000); // esperar a que la velocidad se estabilice
 
-        double measuredVelocity = motor.getVelocity();
-        telemetry.addData("Measured Velocity", measuredVelocity);
-        telemetry.addData("Battery Voltage", batteryVoltage);
-        telemetry.addData("Applied Power", power);
-        telemetry.update();
 
-        while (opModeIsActive()) {}
+
+        while (opModeIsActive()) {
+            launcherMotorTop.setPower(power);
+            launcherMotorBottom.setPower(-power);
+
+            sleep(2000); // esperar a que la velocidad se estabilice
+
+            double measuredVelocityBottom = launcherMotorBottom.getVelocity();
+            double measuredVelocityTop = launcherMotorTop.getVelocity();
+            telemetry.addData("Measured Velocity Bottom", measuredVelocityBottom);
+            telemetry.addData("Measured Velocity Top", measuredVelocityTop);
+            telemetry.addData("Battery Voltage", batteryVoltage);
+            telemetry.addData("Applied Power", power);
+            telemetry.update();
+
+        }
     }
 
     private double getBatteryVoltage() {
@@ -45,4 +54,3 @@ public class VoltageBasedSpeedTest extends LinearOpMode {
         return result;
     }
 }
-
