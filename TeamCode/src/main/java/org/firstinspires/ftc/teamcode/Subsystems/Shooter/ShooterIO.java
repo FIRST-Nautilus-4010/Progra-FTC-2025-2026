@@ -95,6 +95,16 @@ public class ShooterIO {
         return ((double) yawMotor.getCurrentPosition() / (28 * (135 / 70) * 36)) * (2 * Math.PI);
     }
 
+    //ALEXIS
+    // usen este mejor, no tiene sentido que devuelven un double si
+    // hacen una división de enteros
+    /*
+    public double getYaw() {
+        double ticksPerRevFinal = 28.0 * (135.0 / 70.0) * 36.0;
+        return (yawMotor.getCurrentPosition() / ticksPerRevFinal) * (2.0 * Math.PI);
+    }
+    */
+
     public double getPitch() {
         return pitchServo.getPosition();
         //return pitchServo.getPosition();

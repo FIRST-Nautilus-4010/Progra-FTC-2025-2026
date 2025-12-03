@@ -69,6 +69,9 @@ public class PrepareForShoot implements Action {
         if (!initialized) {
             elapsedTime = new ElapsedTime();
             initialized = true;
+            //ALEXIS
+            // finishedTemp debe de ser reseteado
+            // finishTemp = new ElapsedTime(); o un reset
 
         }
 
@@ -82,6 +85,8 @@ public class PrepareForShoot implements Action {
 
             io.setYaw(Math.atan2(distanceWithTargetY.get(), distanceWithTargetX.get()));
 
+            //ALEXIS
+            // deberían de setear el power to 0 si no detecta el tag
         } else {
             AprilTagPoseFtc pose = tagDetection.get().ftcPose;
 
@@ -96,6 +101,9 @@ public class PrepareForShoot implements Action {
 
             double error = -(tagX - imageCenterX);
 
+            //ALEXIS
+            // se tiene que agregar el error a la integral
+            // integral += error * dt;
             integral = Math.max(-50, Math.min(50, integral));
 
             double derivative = (error - lastError) / dt;
@@ -130,6 +138,15 @@ public class PrepareForShoot implements Action {
 
         io.setPitch(pitch);
         io.setVel(-1400);
+        //ALEXIS
+        // usen veloffset
+        // vel = -1400 + velOffset;
+
+        //ALEXIS
+        // yaw y vel no los inicializan con ningun valor mas que hasta arriba
+        // deben de darles un valor, sino no va a hacer nada las siguientes 2 lóneas
+        // yaw = io.getYaw();
+        // io.setVel(vel);
 
         telemetry.addData("desiredShooterPitch", pitch);
         telemetry.addData("errorShooter", lastError);
@@ -139,7 +156,10 @@ public class PrepareForShoot implements Action {
         telemetry.addData("desiredShooterVel", vel);
         telemetry.addData("desiredShooterX", distanceWithTargetX.get() * 0.0254);
         telemetry.addData("desiredShooterY", distanceWithTargetY.get() * 0.0254);
-
+        // ALEXIS
+        // chequen en agregar esto
+        // telemetry.addData("yawError", lastError);
+        // telemetry.addData("currentShooterYaw", yaw);
         return !isFinished();
     }
 
