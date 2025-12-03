@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
+import static org.firstinspires.ftc.teamcode.Test.TuneShooterVelocity.vel;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -80,6 +82,13 @@ public class ShooterIO {
     public void setVel(double vel) {
         launcherMotorTop.setVelocity(vel);
         launcherMotorBottom.setVelocity(vel);
+    }
+    public void setPower(double power) {
+        launcherMotorBottom.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        launcherMotorTop.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        launcherMotorBottom.setDirection(DcMotorSimple.Direction.REVERSE);
+        launcherMotorTop.setPower(-power);
+        launcherMotorBottom.setPower(-power);
     }
 
     public double getYaw() {

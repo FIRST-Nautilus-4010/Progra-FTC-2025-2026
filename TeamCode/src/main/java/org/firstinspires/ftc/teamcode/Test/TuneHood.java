@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterIO;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionIO;
@@ -30,6 +31,9 @@ public class TuneHood extends OpMode {
     private boolean alreadyPressedY = false;
 
     private Servo hammerShooter;
+    public static double desiredVoltage;
+
+    double power = 0;
 
     @Override
     public void init() {
@@ -41,21 +45,18 @@ public class TuneHood extends OpMode {
 
         launcherBottom.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        launcherTop.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
-                new PIDFCoefficients(TuneShooterVelocity.kP, TuneShooterVelocity.kI, 0, TuneShooterVelocity.kF));
-        launcherBottom.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
-                new PIDFCoefficients(TuneShooterVelocity.kP, TuneShooterVelocity.kI, 0, TuneShooterVelocity.kF));
-
-        launcherTop.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        launcherBottom.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launcherTop.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        launcherBottom.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         hammerShooter = hardwareMap.get(Servo.class, "hammerS");
+        double batteryVoltage = getBatteryVoltage();
+        power = desiredVoltage / batteryVoltage;
     }
 
     @Override
     public void loop() {
-        launcherTop.setVelocity(TuneShooterVelocity.vel);
-        launcherBottom.setVelocity(TuneShooterVelocity.vel);
+        launcherTop.setPower(-power);
+        launcherBottom.setPower(-power);
 
         AprilTagDetection tagDetection = vision.getTagBySpecificId(20);
         hood.setPosition(servoPos);
@@ -77,7 +78,20 @@ public class TuneHood extends OpMode {
         }
 
         telemetry.addData("Hood angle", hood.getPosition());
+        telemetry.addData("velocity", launcherBottom.getVelocity());
+        telemetry.addData("power", power);
         vision.displayDetectionTelemetry(tagDetection);
         telemetry.update();
+    }
+
+    private double getBatteryVoltage() {
+        double result = 0;
+        for (VoltageSensor sensor : hardwareMap.getAll(VoltageSensor.class)) {
+            double voltage = sensor.getVoltage();
+            if (voltage > result) {
+                result = voltage;
+            }
+        }
+        return result;
     }
 }

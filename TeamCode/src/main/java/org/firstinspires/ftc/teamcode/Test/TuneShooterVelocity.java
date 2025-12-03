@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
-
+import com.seattlesolvers.solverslib.controller.PIDFController;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @TeleOp(name="TuneShooterVelocity", group="test")
@@ -18,14 +18,17 @@ public class TuneShooterVelocity extends OpMode {
     private DcMotorEx launcherTop;
     private DcMotorEx launcherBottom;
 
-    public static double vel = -1400;
+    public static double vel = -720;
     public static double openLoopPower = 0.75;
     private Servo hammerShooter;
 
-    public static double kP = 3.7;
-    public static double kI = 16383.5000077;
-    public static double kD = 0;
-    public static double kF = 0;
+    public static PIDFCoefficients shooterCoeffs = new PIDFCoefficients(
+            0.01, 0, 0, 0
+    );
+
+    public static double kA = 0.0007;
+
+    public static final PIDFController shooterController = new PIDFController(shooterCoeffs);
 
     Telemetry dashboardTelemetry;
 
@@ -37,29 +40,33 @@ public class TuneShooterVelocity extends OpMode {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         dashboardTelemetry = dashboard.getTelemetry();
         launcherBottom.setDirection(DcMotorSimple.Direction.REVERSE);
+        launcherTop.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        launcherBottom.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+
     }
 
     @Override
     public void loop() {
-        launcherTop.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
-                new PIDFCoefficients(kP, kI, kD, kF));
-        launcherBottom.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
-                new PIDFCoefficients(kP, kI, kD, kF));
+
+        shooterController.setCoefficients(shooterCoeffs);
+
+        shooterController.setTolerance(20);
+        shooterController.setSetPoint(720);
+
+        double currentVelocity = launcherTop.getVelocity();
+
+        double power = (kA * 720) + shooterController.calculate(currentVelocity);
 
         // A → velocity mode
         if (gamepad1.a) {
-            launcherTop.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            launcherBottom.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            launcherTop.setVelocity(vel);
-            launcherBottom.setVelocity(vel);
+            launcherTop.setVelocity(power);
+            launcherBottom.setVelocity(power);
         }
 
         // B → open loop
         if (gamepad1.b) {
-            launcherTop.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            launcherBottom.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
             launcherTop.setPower(openLoopPower);
             launcherBottom.setPower(openLoopPower);
         }
@@ -67,6 +74,7 @@ public class TuneShooterVelocity extends OpMode {
 
         dashboardTelemetry.addData("Velocity in tps launcher top", launcherTop.getVelocity());
         dashboardTelemetry.addData("Velocity in tps launcher bottom", launcherBottom.getVelocity());
+        dashboardTelemetry.addData("power", power);
         dashboardTelemetry.update();
     }
 }

@@ -54,6 +54,7 @@ public class AutonomousBlue extends LinearOpMode {
                 () -> vision.getTagBySpecificId(20),
                 2.5,
                 telemetry
+
         );
         Action take = intakeSubsystem.take();
         Action shoot = intakeSubsystem.shoot();

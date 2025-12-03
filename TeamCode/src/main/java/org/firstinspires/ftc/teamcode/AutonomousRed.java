@@ -69,6 +69,7 @@ public class AutonomousRed extends LinearOpMode {
                         intake.stop(),
                         shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y))), drive.localizer.getPose().heading::toDouble, () -> tagDetection, 0.25, telemetry),
                         intake.hammer()
+
                 ))
 
                 // PPG

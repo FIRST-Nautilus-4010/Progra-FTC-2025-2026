@@ -24,10 +24,22 @@ android {
 }
 
 repositories {
-    maven {
-        url = 'https://maven.brott.dev/'
-    }
+    google()
+    mavenCentral()
+
+    // Official Acme Robotics Maven repo (Road Runner)
+    maven { url "https://maven.acmerobotics.org" }
+
+    // JitPack (required for some RR dependencies)
+    maven { url "https://jitpack.io" }
+
+    // Brott Maven (for some FTC community libs)
+    maven { url "https://maven.brott.dev" }
+
+    // Dairy Foundation repo (if you really need it)
+    maven { url "https://repo.dairy.foundation/releases" }
 }
+
 
 dependencies {
     implementation project(':FtcRobotController')
@@ -36,4 +48,5 @@ dependencies {
     implementation "com.acmerobotics.roadrunner:core:1.0.1"
     implementation "com.acmerobotics.roadrunner:actions:1.0.1"
     implementation "com.acmerobotics.dashboard:dashboard:0.5.0"
+    implementation "org.solverslib:core:0.3.3"
 }

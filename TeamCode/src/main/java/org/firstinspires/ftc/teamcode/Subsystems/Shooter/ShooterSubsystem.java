@@ -12,9 +12,11 @@ import java.util.function.Supplier;
 
 public class ShooterSubsystem {
     private final ShooterIO io;
+    private final HardwareMap hardwareMap;
 
     public ShooterSubsystem(HardwareMap hardwareMap) {
         io = new ShooterIO(hardwareMap);
+        this.hardwareMap = hardwareMap;
     }
 
     public Action prepareForShoot(Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Supplier<AprilTagDetection> tagDetection, double velOffset, Telemetry telemetry) {
