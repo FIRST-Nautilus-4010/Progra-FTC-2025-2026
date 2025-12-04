@@ -132,12 +132,43 @@ public class PrepareForShoot implements Action {
             lastError = error;
 
             distance = Math.sqrt(pose.x * pose.x + pose.y * pose.y + pose.z * pose.z) * 0.0254;
+//1ER RANGO
+            if (distance >= 0.32 && distance < 0.96) {
+                pitch = 0.488281 * distance * distance - 0.15625 * distance + 1.1;
+            }
+//2ND RANGO
+            else if (distance >= 0.96 && distance < 2.56) {
+                pitch = 0.279018 * distance * distance + 0.477679 * distance + 0.798571;
+            }
+
+//3ER RANGO
+            else if (distance >= 2.56 && distance <= 3.20) {
+                pitch = 0.298394 * distance * distance + 1.03299 * distance + 0;
+            }
+
+
+            io.setPitch(pitch);
+
+
+// VELOCIDAD DEL SHOOTER SEGÚN DISTANCIA
+
+            if (distance >= 0.32 && distance < 0.96) {
+                vel = 580;
+            }
+            else if (distance >= 0.96 && distance < 2.56) {
+                vel = 720;
+            }
+            else if (distance >= 2.56 && distance <= 3.20) {
+                vel = 820;
+            }
+            else {
+                vel = 0;
+            }
         }
 
-        double pitch = 0.865995 * distance * distance - 2.57658 * distance + 2.3075;
 
         io.setPitch(pitch);
-        io.setVel(-1400);
+        io.setVel(-vel);
         //ALEXIS
         // usen veloffset
         // vel = -1400 + velOffset;

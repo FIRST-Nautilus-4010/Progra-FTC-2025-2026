@@ -18,12 +18,12 @@ public class TuneShooterVelocity extends OpMode {
     private DcMotorEx launcherTop;
     private DcMotorEx launcherBottom;
 
-    public static double vel = -720;
+    public static double vel = 720;
     public static double openLoopPower = 0.75;
     private Servo hammerShooter;
 
     public static PIDFCoefficients shooterCoeffs = new PIDFCoefficients(
-            0.01, 0, 0, 0
+            0.015, 0.9, 0.0003, 0
     );
 
     public static double kA = 0.0007;
@@ -53,17 +53,20 @@ public class TuneShooterVelocity extends OpMode {
         shooterController.setCoefficients(shooterCoeffs);
 
         shooterController.setTolerance(20);
-        shooterController.setSetPoint(720);
+        shooterController.setSetPoint(vel);
 
         double currentVelocity = launcherTop.getVelocity();
 
-        double power = (kA * 720) + shooterController.calculate(currentVelocity);
+        double power = (kA * vel) + shooterController.calculate(currentVelocity);
+
+        power = Math.max(-1, Math.min(power, 1));
+
 
         // A → velocity mode
-        if (gamepad1.a) {
-            launcherTop.setVelocity(power);
-            launcherBottom.setVelocity(power);
-        }
+
+            launcherTop.setPower(power);
+            launcherBottom.setPower(power);
+
 
         // B → open loop
         if (gamepad1.b) {
@@ -75,6 +78,9 @@ public class TuneShooterVelocity extends OpMode {
         dashboardTelemetry.addData("Velocity in tps launcher top", launcherTop.getVelocity());
         dashboardTelemetry.addData("Velocity in tps launcher bottom", launcherBottom.getVelocity());
         dashboardTelemetry.addData("power", power);
+        dashboardTelemetry.addData("shooter sepoint", shooterController.getSetPoint());
+        dashboardTelemetry.addData("error", shooterController.getPositionError());
+
         dashboardTelemetry.update();
     }
 }
