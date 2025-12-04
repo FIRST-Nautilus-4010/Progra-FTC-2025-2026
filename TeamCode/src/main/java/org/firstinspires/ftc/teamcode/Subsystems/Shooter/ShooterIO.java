@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.seattlesolvers.solverslib.controller.PIDFController;
+
+import org.firstinspires.ftc.teamcode.Test.TuneShooterVelocity;
 
 public class ShooterIO {
     private final DcMotorEx yawMotor;
@@ -16,6 +19,7 @@ public class ShooterIO {
     private final DcMotorEx launcherMotorBottom;
 
     private final HardwareMap hardwareMap;
+
 
     public ShooterIO(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -79,9 +83,19 @@ public class ShooterIO {
         //pitchServo.setPosition(angle);
     }
 
-    public void setVel(double vel) {
-        launcherMotorTop.setVelocity(vel);
-        launcherMotorBottom.setVelocity(vel);
+    public void calculatePower () {
+        final PIDFController shooterController = new PIDFController(TuneShooterVelocity.shooterCoeffs);
+
+        shooterController.setCoefficients(TuneShooterVelocity.shooterCoeffs);
+
+        shooterController.setTolerance(20);
+        shooterController.setSetPoint(TuneShooterVelocity.vel);
+
+        double currentVelocity = launcherMotorTop.getVelocity();
+
+        double power = (TuneShooterVelocity.kA * TuneShooterVelocity.vel) + shooterController.calculate(currentVelocity);
+
+        power = Math.max(-1, Math.min(power, 1));
     }
     public void setPower(double power) {
         launcherMotorBottom.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -118,4 +132,10 @@ public class ShooterIO {
     public double getVel() {
         return launcherMotorTop.getVelocity();
     }
+
+    public double calculatePowerShooter (double power){
+
+
+    }
+
 }

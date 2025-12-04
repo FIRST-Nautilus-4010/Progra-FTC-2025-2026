@@ -47,6 +47,8 @@ public class PrepareForShoot implements Action {
 
 
 
+
+
     public PrepareForShoot(ShooterIO io, Supplier<Double> distanceWithTargetX, Supplier<Double> distanceWithTargetY, Supplier<Double> botYaw, Supplier<AprilTagDetection> tagDetection, double velOffset, Telemetry telemetry) {
         this.io = io;
         this.intakeIO = new IntakeIO(io.getHardwareMap());
@@ -153,22 +155,22 @@ public class PrepareForShoot implements Action {
 // VELOCIDAD DEL SHOOTER SEGÚN DISTANCIA
 
             if (distance >= 0.32 && distance < 0.96) {
-                vel = 580;
+                power = 580;
             }
             else if (distance >= 0.96 && distance < 2.56) {
-                vel = 720;
+                power = 720;
             }
             else if (distance >= 2.56 && distance <= 3.20) {
-                vel = 820;
+                power = 820;
             }
             else {
-                vel = 0;
+                power = 0;
             }
         }
 
 
         io.setPitch(pitch);
-        io.setVel(-vel);
+        io.setPower(-power);
         //ALEXIS
         // usen veloffset
         // vel = -1400 + velOffset;
