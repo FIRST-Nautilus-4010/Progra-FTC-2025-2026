@@ -44,6 +44,7 @@ public class PrepareForShoot implements Action {
     private final double kP = 0.00005;
     private final double kI = 0.000;
     private final double kD = 0.002;
+    private double PowerShooter;
 
 
 
@@ -74,20 +75,24 @@ public class PrepareForShoot implements Action {
             // finishTemp = new ElapsedTime(); o un reset
 
         }
+        distance = Math.hypot(distanceWithTargetX.get(), distanceWithTargetY.get()) + 0.3;
+        yaw = Math.atan2(distanceWithTargetY.get(),
+                distanceWithTargetX.get())
+                - botYaw.get();
 
-        if (tagDetection.get() == null) {
+        /*if (tagDetection.get() == null) {
             // ---- CÁLCULO DEL YAW---
              yaw = Math.atan2(distanceWithTargetY.get() * 0.0254,
                     distanceWithTargetX.get() * 0.0254)
                     - botYaw.get();
             distance = Math.sqrt(distanceWithTargetY.get() * 0.0254 * distanceWithTargetY.get() * 0.0254 +
-                    distanceWithTargetX.get() * 0.0254 * distanceWithTargetX.get() * 0.0254 + 0.76 * 0.76);
+                    distanceWithTargetX.get() * 0.0254 * distanceWithTargetX.get() * 0.0254);
 
             io.setYaw(Math.atan2(distanceWithTargetY.get(), distanceWithTargetX.get()));
 
             //ALEXIS
             // deberían de setear el power to 0 si no detecta el tag
-        } else {
+        }/* else {
             AprilTagPoseFtc pose = tagDetection.get().ftcPose;
 
             double dt = elapsedTime.seconds();
@@ -132,43 +137,50 @@ public class PrepareForShoot implements Action {
             lastError = error;
 
             distance = Math.sqrt(pose.x * pose.x + pose.y * pose.y + pose.z * pose.z) * 0.0254;
-//1ER RANGO
-            if (distance >= 0.32 && distance < 0.96) {
-                pitch = 0.488281 * distance * distance - 0.15625 * distance + 1.1;
-            }
+
+        }*/
+
+
+        //1ER RANGO
+        if (distance < 0.96) {
+            pitch = -0.488281 * distance * distance - 0.15625 * distance + 1.1;
+        }
 //2ND RANGO
-            else if (distance >= 0.96 && distance < 2.56) {
-                pitch = 0.279018 * distance * distance + 0.477679 * distance + 0.798571;
-            }
+        else if (distance >= 0.96 && distance < 2.56) {
+            pitch = -0.279018 * distance * distance + 0.477679 * distance + 0.798571;
+        }
 
 //3ER RANGO
-            else if (distance >= 2.56 && distance <= 3.20) {
-                pitch = 0.298394 * distance * distance + 1.03299 * distance + 0;
-            }
-
-
-            io.setPitch(pitch);
-
-
-// VELOCIDAD DEL SHOOTER SEGÚN DISTANCIA
-
-            if (distance >= 0.32 && distance < 0.96) {
-                vel = 580;
-            }
-            else if (distance >= 0.96 && distance < 2.56) {
-                vel = 720;
-            }
-            else if (distance >= 2.56 && distance <= 3.20) {
-                vel = 820;
-            }
-            else {
-                vel = 0;
-            }
+        else if (distance >= 2.56 && distance <= 3.20) {
+            pitch = -0.298394 * distance * distance + 1.03299 * distance + 0;
         }
 
 
         io.setPitch(pitch);
-        io.setVel(-vel);
+
+        // VELOCIDAD DEL SHOOTER SEGÚN DISTANCIA
+
+        if (distance < 0.96) {
+
+            PowerShooter = 605;
+            io.setPoint(PowerShooter);
+
+        }
+        else if (distance >= 0.96 && distance < 2.56) {
+
+            PowerShooter = 750;
+            io.setPoint(PowerShooter);
+
+        }
+        else if (distance >= 2.56) {
+
+            PowerShooter = 820;
+            io.setPoint(PowerShooter);
+
+        }
+
+        //io.setYaw(yaw);
+
         //ALEXIS
         // usen veloffset
         // vel = -1400 + velOffset;
@@ -178,15 +190,16 @@ public class PrepareForShoot implements Action {
         // deben de darles un valor, sino no va a hacer nada las siguientes 2 lóneas
         // yaw = io.getYaw();
         // io.setVel(vel);
-
+        io.setVel();
         telemetry.addData("desiredShooterPitch", pitch);
         telemetry.addData("errorShooter", lastError);
         telemetry.addData("distance", distance);
         telemetry.addData("power", yawPower);
         telemetry.addData("desiredShooterYaw", yaw);
-        telemetry.addData("desiredShooterVel", vel);
-        telemetry.addData("desiredShooterX", distanceWithTargetX.get() * 0.0254);
-        telemetry.addData("desiredShooterY", distanceWithTargetY.get() * 0.0254);
+        telemetry.addData("desiredShooterVel", PowerShooter);
+        telemetry.addData("vel", io.getVel());
+        telemetry.addData("desiredShooterX", distanceWithTargetX.get());
+        telemetry.addData("desiredShooterY", distanceWithTargetY.get());
         // ALEXIS
         // chequen en agregar esto
         // telemetry.addData("yawError", lastError);
@@ -195,8 +208,7 @@ public class PrepareForShoot implements Action {
     }
 
     public boolean isFinished() {
-        //return Math.abs(io.getVel() - 1400) < 50;
-        return finishTemp.milliseconds() > 3000;
+        return Math.abs(io.getVel() - PowerShooter) < 50;
         //return false;
     }
 }

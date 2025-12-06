@@ -1,22 +1,30 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
+import static org.firstinspires.ftc.teamcode.Test.TuneShooterVelocity.kA;
 import static org.firstinspires.ftc.teamcode.Test.TuneShooterVelocity.vel;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.seattlesolvers.solverslib.controller.PIDFController;
+
+import org.firstinspires.ftc.teamcode.Test.TuneShooterVelocity;
 
 public class ShooterIO {
     private final DcMotorEx yawMotor;
     private final Servo pitchServo;
-
+    public double Vel;
     private final DcMotorEx launcherMotorTop;
     private final DcMotorEx launcherMotorBottom;
 
     private final HardwareMap hardwareMap;
-
+    public static final PIDFController shooterController = new PIDFController(TuneShooterVelocity.shooterCoeffs);
+    public static PIDFCoefficients shooterCoeffs = new PIDFCoefficients(
+            0.015, 0.9, 0.0003, 0
+    );
     public ShooterIO(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
 
@@ -25,8 +33,6 @@ public class ShooterIO {
 
         launcherMotorTop = hardwareMap.get(DcMotorEx.class, "launcherTop");
         launcherMotorBottom = hardwareMap.get(DcMotorEx.class, "launcherBottom");
-        launcherMotorTop.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        launcherMotorBottom.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         yawMotor.setPositionPIDFCoefficients(100);
         yawMotor.setTargetPositionTolerance(10);
@@ -64,31 +70,45 @@ public class ShooterIO {
     }
 
     public void setPitch(double pos) {
-        if (pos >= 1) {
-            pitchServo.setPosition(1);
-            return;
-        }
-
-        if (pos <= 0) {
-            pitchServo.setPosition(0);
-            return;
-        }
 
         pitchServo.setPosition(pos);
 
         //pitchServo.setPosition(angle);
     }
 
-    public void setVel(double vel) {
-        launcherMotorTop.setVelocity(vel);
-        launcherMotorBottom.setVelocity(vel);
+    public void setVel() {
+        shooterController.setCoefficients(shooterCoeffs);
+
+        shooterController.setTolerance(20);
+
+        double currentVelocity = launcherMotorTop.getVelocity();
+
+        vel = (kA * vel) + shooterController.calculate(currentVelocity);
+
+        vel = Math.max(-1, Math.min(vel, 1));
+        if(Math.abs(shooterController.getSetPoint()) > 100){
+            launcherMotorTop.setPower(vel);
+            launcherMotorBottom.setPower(vel);
+        } else{
+            launcherMotorTop.setPower(0);
+            launcherMotorBottom.setPower(0);
+        }
+
+
+
     }
+
+    public void setPoint(double setPoint){
+        shooterController.setSetPoint(setPoint);
+    }
+
     public void setPower(double power) {
         launcherMotorBottom.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         launcherMotorTop.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         launcherMotorBottom.setDirection(DcMotorSimple.Direction.REVERSE);
-        launcherMotorTop.setPower(-power);
-        launcherMotorBottom.setPower(-power);
+        launcherMotorTop.setPower(power);
+        launcherMotorBottom.setPower(power);
+;
     }
 
     public double getYaw() {

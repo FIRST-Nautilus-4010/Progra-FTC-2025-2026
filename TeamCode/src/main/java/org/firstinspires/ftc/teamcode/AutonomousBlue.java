@@ -3,13 +3,17 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.Actions.PrepareForShoot;
@@ -25,9 +29,11 @@ public class AutonomousBlue extends LinearOpMode {
     private static final double PGP_POS = 12.2;
     private static final double GPP_POS = 36;
 
-    public static Supplier<Pose2d> lastPose = () -> new Pose2d(-70+8, -46.6 + 7.4,  -Math.PI / 2);
+    public static Supplier<Pose2d> lastPose = () -> new Pose2d(-70, -59,  -Math.PI / 2);
 
     private VisionIO vision;
+    private IntakeSubsystem intake;
+    private ShooterSubsystem shooter;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -42,64 +48,85 @@ public class AutonomousBlue extends LinearOpMode {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         TelemetryPacket packet = new TelemetryPacket();
 
-        ShooterSubsystem shooter = new ShooterSubsystem(hardwareMap);
-        IntakeSubsystem intakeSubsystem = new IntakeSubsystem(hardwareMap, telemetry);
+        shooter = new ShooterSubsystem(hardwareMap);
+        intake = new IntakeSubsystem(hardwareMap, telemetry);
 
         vision = new VisionIO(hardwareMap, shooter.getIO(), telemetry);
 
-        Action prepareForShoot = shooter.prepareForShoot(
-                () -> -64 - drive.localizer.getPose().position.x,
-                () -> (-59 - drive.localizer.getPose().position.y),
-                () -> drive.localizer.getPose().heading.toDouble(),
-                () -> vision.getTagBySpecificId(20),
-                2.5,
-                telemetry
+        Action prepareForShoot = shooter.prepareForShoot(() -> distanceWithTargetX(drive), () -> distanceWithTargetY(-1, drive), drive.localizer.getPose().heading::toDouble, () -> null, -0.9, telemetry);
 
-        );
-        Action take = intakeSubsystem.take();
-        Action shoot = intakeSubsystem.shoot();
-        Action stop = intakeSubsystem.stop();
+
+        Action hammer = intake.hammer();
+        Action take = intake.take();
+        Action shoot = intake.shoot();
+        Action stop = intake.stop();
 
         // Construye la acción (trajectory) del robot
         Action traj = drive.actionBuilder(startPose)
-                .strafeTo(new Vector2d(-30, -28))
+                .strafeToLinearHeading(new Vector2d(-30, -28), Math.atan2(distanceWithTargetYManual(-1, -28), distanceWithTargetXManual(-30)))
 
-                .stopAndAdd(prepareForShoot)
-                .waitSeconds(2)
-                .stopAndAdd(shoot)
+                .stopAndAdd(new SequentialAction(
+                        stop,
+                        prepareForShoot,
+                        hammer
 
+                ))
+
+                .stopAndAdd(new ParallelAction(
+                        intake.stop(),
+                        shooter.stop()
+                ))
                 // PPG
-                .strafeToConstantHeading(new Vector2d(PPG_POS, -28 + 3))
-                .stopAndAdd(take)
-                .stopAndAdd(shooter.intake())
-                .strafeToConstantHeading(new Vector2d(PPG_POS, -28 + 3 - 18))
+                .strafeToLinearHeading(new Vector2d(PPG_POS, -28 + 3), -Math.PI / 2)
+                .stopAndAdd(new ParallelAction(
+                        intake.take(),
+                        shooter.intake()
+                ))
+                .strafeToLinearHeading(new Vector2d(PPG_POS, -28 + 3 - 18), -Math.PI / 2)
                 .stopAndAdd(stop)
-                .strafeToConstantHeading(new Vector2d(-36.3, -31.5))
-                .stopAndAdd(prepareForShoot)
-                .waitSeconds(2)
-                .stopAndAdd(shoot)
+                .strafeToLinearHeading(new Vector2d(-36.3, -31.5), Math.atan2(distanceWithTargetYManual(-1, -31.5), distanceWithTargetXManual(-36.3)))
+
+                .stopAndAdd(new SequentialAction(
+                        stop,
+                        prepareForShoot,
+                        hammer
+
+                ))
 
                 // PGP
-                .strafeToConstantHeading(new Vector2d(PGP_POS, -28 + 3))
+                .strafeToLinearHeading(new Vector2d(PGP_POS, -28 + 3), -Math.PI / 2)
                 .stopAndAdd(take)
                 .stopAndAdd(shooter.intake())
-                .strafeToConstantHeading(new Vector2d(PGP_POS, -28 + 3 - 18))
+                .strafeToLinearHeading(new Vector2d(PGP_POS, -28 + 3 - 18), -Math.PI / 2)
                 .stopAndAdd(stop)
-                .strafeToConstantHeading(new Vector2d(-7.9, -19.9))
-                .stopAndAdd(prepareForShoot)
-                .waitSeconds(2)
-                .stopAndAdd(shoot)
+                .strafeToLinearHeading(new Vector2d(-7.9, -19.9), Math.atan2(distanceWithTargetYManual(-1, -19.9), distanceWithTargetXManual(-7.9)))
+
+                .stopAndAdd(new SequentialAction(
+                        stop,
+                        prepareForShoot,
+                        hammer
+
+                ))
 
                 // GPP
-                .strafeToConstantHeading(new Vector2d(GPP_POS, -28 + 3))
+                .strafeToLinearHeading(new Vector2d(GPP_POS, -28 + 3), -Math.PI / 2)
                 .stopAndAdd(take)
                 .stopAndAdd(shooter.intake())
-                .strafeToConstantHeading(new Vector2d(GPP_POS, -28 + 3 - 18))
+                .strafeToLinearHeading(new Vector2d(GPP_POS, -28 + 3 - 18), -Math.PI / 2)
                 .stopAndAdd(stop)
-                .strafeToConstantHeading(new Vector2d(54.3, -12.9))
-                .stopAndAdd(prepareForShoot)
-                .waitSeconds(2)
-                .stopAndAdd(shoot)
+                .strafeToLinearHeading(new Vector2d(54.3, -12.9), Math.atan2(distanceWithTargetYManual(-1, -12.9), distanceWithTargetXManual(54.3)))
+
+                .stopAndAdd(new SequentialAction(
+                        stop,
+                        prepareForShoot,
+                        hammer
+
+                ))
+
+                .stopAndAdd(new ParallelAction(
+                        intake.stop(),
+                        shooter.stop()
+                ))
 
                 .build();
 
@@ -110,6 +137,36 @@ public class AutonomousBlue extends LinearOpMode {
         // Ejecuta la acción y actualiza la pose en tiempo real
         while (opModeIsActive()) {
             Actions.runBlocking(traj);
+            periodic();
         }
+    }
+
+    private double distanceWithTargetX(MecanumDrive drive) {
+        double distance = ((-64 +  14.57) - drive.localizer.getPose().position.x) * 0.0254;
+        telemetry.addData("distance with target X", distance);
+        return distance;
+    }
+
+    private double distanceWithTargetY(double allianceMult, MecanumDrive drive) {
+        double distance = ((59 + 15.35)  * allianceMult -  (drive.localizer.getPose().position.y)) * 0.0254;
+        telemetry.addData("distance with target Y", distance);
+        return distance;
+    }
+
+    private void periodic() {
+        intake.periodic();
+        shooter.periodic(telemetry);
+    }
+
+    private double distanceWithTargetXManual(double x) {
+        double distance = ((-64 +  14.57) - x) * 0.0254;
+        telemetry.addData("distance with target X", distance);
+        return distance;
+    }
+
+    private double distanceWithTargetYManual(double allianceMult, double y) {
+        double distance = ((59 + 15.35)  * allianceMult - (y)) * 0.0254;
+        telemetry.addData("distance with target Y", distance);
+        return distance;
     }
 }

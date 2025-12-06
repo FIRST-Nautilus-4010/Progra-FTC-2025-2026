@@ -63,6 +63,9 @@ public class SubsystemManager {
 
         RobotState current = stateQueue.peek();
 
+        distanceWithTargetX(drive, telemetry);
+        distanceWithTargetY(drive, telemetry, alianceMult);
+
         // Si entramos en un nuevo estado, inicializamos las Actions asociadas UNA VEZ
         if (cachedState != current) {
             // limpiar cualquier action previa (por seguridad)
@@ -71,10 +74,7 @@ public class SubsystemManager {
 
             switch (current) {
                 case TRAVEL:
-                    runningAction = new ParallelAction(
-                            intake.stop(),
-                            shooter.stop()
-                    );
+                    runningAction = null;
                     break;
 
                 case INTAKE:
@@ -87,10 +87,15 @@ public class SubsystemManager {
                 case SHOOT:
                     runningAction = new SequentialAction(
                             intake.stop(),
-                            shooter.prepareForShoot(() -> -64 - (drive.localizer.getPose().position.x), () -> ((59 -  (drive.localizer.getPose().position.y)) * alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, -0.9, telemetry),
+                            shooter.prepareForShoot(() -> distanceWithTargetX(drive, telemetry), () -> distanceWithTargetY(drive, telemetry, alianceMult), drive.localizer.getPose().heading::toDouble, tagDetection, -0.9, telemetry),
                             intake.hammer()
                     );
                     break;
+                case STOP:
+                    runningAction = new ParallelAction(
+                            intake.stop(),
+                            shooter.stop()
+                    );
             }
         }
 
@@ -102,5 +107,16 @@ public class SubsystemManager {
         shooter.periodic(telemetry);
 
         telemetry.addData("State", current.toString());
+    }
+    private double distanceWithTargetX(MecanumDrive drive, Telemetry telemetry) {
+        double distance = ((-64 +  14.57) - (drive.localizer.getPose().position.x)) * 0.0254;
+        telemetry.addData("distance with target X", distance);
+        return distance;
+    }
+
+    private double distanceWithTargetY(MecanumDrive drive, Telemetry telemetry, double allianceMult) {
+        double distance = ((59 + 15.35)  * allianceMult -  (drive.localizer.getPose().position.y)) * 0.0254;
+        telemetry.addData("distance with target Y", distance);
+        return distance;
     }
 }

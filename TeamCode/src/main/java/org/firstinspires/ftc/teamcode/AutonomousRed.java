@@ -27,7 +27,7 @@ public class AutonomousRed extends LinearOpMode {
     private static final double PGP_POS = 12.2;
     private static final double GPP_POS = 36;
 
-    public static Supplier<Pose2d> lastPose = () -> new Pose2d(-70+8, 46.6 - 7.4,  Math.PI / 2);
+    public static Supplier<Pose2d> lastPose = () -> new Pose2d(-70+8, -46.6 + 7.4,  -Math.PI / 2);
 
     private AprilTagDetection tagDetection;
     private VisionIO vision;
@@ -36,7 +36,7 @@ public class AutonomousRed extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         // Inicializa el drive y la posición inicial
-        Pose2d startPose = new Pose2d(-70+8, 46.6 - 7.4,  -Math.PI / 2);
+        Pose2d startPose = new Pose2d(-70+8, -46.6 + 7.4,  -Math.PI / 2);
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
         drive.localizer.setPose(startPose);
 

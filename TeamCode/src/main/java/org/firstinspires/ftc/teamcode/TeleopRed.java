@@ -10,13 +10,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.AllianceDetector;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionIO;
+import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionIO.Pose2dSimple;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterIO;
 
 
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-@TeleOp(name="TeleopRed", group="Regional")
+@TeleOp(name="TeleopBlue", group="Regional")
 public class TeleopRed extends OpMode {
 
     private MecanumDrive drive;
@@ -34,21 +34,18 @@ public class TeleopRed extends OpMode {
     private AllianceDetector allianceDetector;
     private boolean allianceDecided = false;
     private Servo hammerShooter;
-    private AprilTagDetection tagDetection;
+
 
 
     @Override
     public void init() {
-
-
         hammerShooter = hardwareMap.get(Servo.class, "hammerS");
-        drive = new MecanumDrive(hardwareMap, AutonomousRed.lastPose.get());
+        drive = new MecanumDrive(hardwareMap, AutonomousBlue.lastPose.get());
         subsystemManager = new SubsystemManager(hardwareMap, telemetry);
 
         shooter = new ShooterIO(hardwareMap);
         vision = new VisionIO(hardwareMap, shooter, telemetry);
         vision.resume();
-        tagDetection = vision.getTagBySpecificId(24);
 
         initialPoseSet = false;
 
@@ -68,12 +65,12 @@ public class TeleopRed extends OpMode {
 
     @Override
     public void loop() {
-        subsystemManager.periodic(drive, ()-> vision.getTagBySpecificId(24), new TelemetryPacket(), 1);
+        subsystemManager.periodic(drive, () -> vision.getTagBySpecificId(20), new TelemetryPacket(), 1);
 
         vision.update();
-        /*
+        vision.displayDetectionTelemetry(vision.getTagBySpecificId(20));
         Pose2dSimple vp = vision.getLastRobotPose();
-
+        /*
         // === DETECCIÓN DE ALIANZA ===
         if (!allianceDecided){
             if (allianceDetector.processPose(vp)){
@@ -87,6 +84,7 @@ public class TeleopRed extends OpMode {
             }
         }
         */
+
         // === LECTURA DE STICKS ===
         double driveY = -gamepad1.left_stick_x;  // Adelante/Atrás
         double driveX = -gamepad1.left_stick_y;  // Lateral
@@ -96,7 +94,7 @@ public class TeleopRed extends OpMode {
 
         // === ACTUALIZA POSE ===
         drive.updatePoseEstimate();
-        double heading = -pose.heading.toDouble() + Math.toRadians(90);
+        double heading = pose.heading.toDouble() - Math.toRadians(180);
 
         // === CONVERSIÓN FIELD ORIENTED ===
         double rotatedX = driveX * Math.cos(heading) - driveY * Math.sin(heading);
@@ -125,19 +123,14 @@ public class TeleopRed extends OpMode {
 
 
         if (gamepad2.x && !alreadyPressedX) {
-            subsystemManager.setState(RobotState.TRAVEL);
+            subsystemManager.setState(RobotState.STOP);
             alreadyPressedX = true;
         } else {
             alreadyPressedX = false;
         }
-        if (gamepad2.y && !alreadyPressedY){
-            hammerShooter.setPosition(0);
-        }else{
-            hammerShooter.setPosition(1);
-        }
 
-        if (gamepad2.dpad_down) {
-            drive.localizer.setPose(new Pose2d(pose.position.x, pose.position.y, Math.PI / 2));
+        if (gamepad1.dpad_down) {
+            drive.localizer.setPose(new Pose2d(-70, 59,  Math.PI / 2));
         }
 
 
@@ -150,8 +143,6 @@ public class TeleopRed extends OpMode {
         telemetry.addData("samples", allianceDetector.getSamples());
         telemetry.addData("red", allianceDetector.getRedCount());
         telemetry.addData("blue", allianceDetector.getBlueCount());
-
-        vision.displayDetectionTelemetry(tagDetection);
 
         telemetry.update();
     }

@@ -57,8 +57,6 @@ public class TeleopBlue extends OpMode {
 
         allianceDecided = false;
 
-
-
         telemetry.addLine("Test RR + Mecanum listo");
         telemetry.addData("status", "init complete");
         telemetry.update();
@@ -108,7 +106,7 @@ public class TeleopBlue extends OpMode {
                 turn
         ));
 
-        if (gamepad1.a && !alreadyPressedA) {
+        if (gamepad2.a && !alreadyPressedA) {
             subsystemManager.setState(RobotState.INTAKE);
 
             alreadyPressedA = true;
@@ -116,7 +114,7 @@ public class TeleopBlue extends OpMode {
             alreadyPressedA = false;
         }
 
-        if (gamepad1.b && !alreadyPressedB) {
+        if (gamepad2.b && !alreadyPressedB) {
             subsystemManager.setState(RobotState.SHOOT);
             alreadyPressedB = true;
         } else {
@@ -124,15 +122,15 @@ public class TeleopBlue extends OpMode {
         }
 
 
-        if (gamepad1.x && !alreadyPressedX) {
-            subsystemManager.setState(RobotState.TRAVEL);
+        if (gamepad2.x && !alreadyPressedX) {
+            subsystemManager.setState(RobotState.STOP);
             alreadyPressedX = true;
         } else {
             alreadyPressedX = false;
         }
 
         if (gamepad1.dpad_down) {
-            drive.localizer.setPose(new Pose2d(pose.position.x, pose.position.y, -Math.PI / 2));
+            drive.localizer.setPose(new Pose2d(-70, -59,  -Math.PI / 2));
         }
 
 

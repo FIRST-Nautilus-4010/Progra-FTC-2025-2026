@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -24,7 +25,7 @@ public class ShooterSubsystem {
     }
 
     public Action intake() {
-        return new setVel(io, 6000);
+        return new setVel(io, -500);
     }
 
     public Action stop() {
@@ -39,7 +40,7 @@ public class ShooterSubsystem {
         telemetry.addData("VelShooter", io.getVel());
         telemetry.addData("shooterYaw", io.getYaw());
         telemetry.addData("shooterPitch", io.getPitch());
-
+        io.setVel();
         // Soft limit
         if (io.getYaw() >= Math.PI / 2 && io.getYawVel() > 0 ||
             io.getYaw() <= -Math.PI / 2 && io.getYawVel() < 0
